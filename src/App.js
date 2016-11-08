@@ -18,6 +18,19 @@ class SWState extends Enum {
 
 SWState.initEnum(['BEFORE_START', 'RUNNING', "SUSPEND", "FINISHED"]);
 
+
+var PingManager = require('./index.js');
+var services = [{url: 'https://adasq.herokuapp.com', cron: '*/2 * * * * *'}]
+
+var pm = new PingManager(services);
+
+pm.on('pm-success', function(desc){
+    var normalizedDate = (desc.time+'').substr(16, 8);
+    console.log("[%s] [success] %s", normalizedDate, desc.service.url);
+});
+
+
+
 class StopWatch {
     constructor(title, seconds, onTick, onFinish) {
         this.title = title;
