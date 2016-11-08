@@ -12,23 +12,15 @@ import ImageTimer from 'material-ui/svg-icons/image/timer';
 import ImageTimerOff from 'material-ui/svg-icons/image/timer-off';
 import AvPlayArrow from 'material-ui/svg-icons/av/play-arrow';
 import AvPause from 'material-ui/svg-icons/av/pause';
+import NoSleep from 'nosleep.js/NoSleep';
 
 class SWState extends Enum {
 }
 
 SWState.initEnum(['BEFORE_START', 'RUNNING', "SUSPEND", "FINISHED"]);
 
-
-var PingManager = require('./index.js');
-var services = [{url: 'https://adasq.herokuapp.com', cron: '*/2 * * * * *'}]
-
-var pm = new PingManager(services);
-
-pm.on('pm-success', function(desc){
-    var normalizedDate = (desc.time+'').substr(16, 8);
-    console.log("[%s] [success] %s", normalizedDate, desc.service.url);
-});
-
+var nosleep = new NoSleep();
+nosleep.enable();
 
 
 class StopWatch {
