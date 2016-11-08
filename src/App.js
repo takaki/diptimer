@@ -130,7 +130,9 @@ class GameTimer extends Component {
             // {title: "C", duration: 3},
         ];
 
-        this.state = {timerIndex: 0}
+        this.state = {timerIndex: 0};
+
+        this.noSleep = new NoSleep();
     }
 
     componentWillMount() {
@@ -200,6 +202,7 @@ class GameTimer extends Component {
                 <div className="timedisplay">{this.state.title}</div>
                 <div className="timedisplay">{this.state.time}</div>
                 <RaisedButton label={this.state.label} icon={this.state.icon} onClick={() => {
+                    this.noSleep.enable();
                     if ([SWState.BEFORE_START, SWState.SUSPEND].includes(this.state.sw.getSWState())) {
                         this.state.sw.go();
                         this.setState({
@@ -217,6 +220,7 @@ class GameTimer extends Component {
                 }}/>
                 <RaisedButton label="Reset" secondary={true} onClick={() => {
                     this.state.sw.pause();
+                    this.noSleep.disable();
                     this.resetTimer();
                 }}/>
                 <hr />
@@ -229,12 +233,6 @@ class GameTimer extends Component {
 }
 
 class App extends Component {
-    constructor() {
-        super();
-        this.noSleep = new NoSleep();
-        this.noSleep.enable();
-
-    }
     render() {
         return (
             <MuiThemeProvider>
