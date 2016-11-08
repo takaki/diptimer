@@ -29,9 +29,8 @@ class StopWatch {
         this.onFinish = onFinish;
         this.mseconds = seconds * 1000;
         this.timeoutIds = [];
-        this.checkpoint = [14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1].map(i=>i * 60).concat([50, 40, 30, 20, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1]).filter(element => element < seconds);
-        // this.checkpoint = [3 * 60, 2 * 60, 60, 30, 20, 10, 5, 4, 3, 2, 1].filter(element => element < seconds);
-        // this.checkpoint = [3 * 60, 2 * 60, 60, 30, 20, 10, 1].filter(element => element < seconds);
+        this.checkpoint = [14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1].map(i=>i * 60).concat([50, 40, 30, 20, 10, 5, 4, 3, 2, 1]).filter(element => element < seconds);
+        //this.checkpoint = [3 * 60, 2 * 60, 60, 30, 20, 10, 1].filter(element => element < seconds);
         this.swstate = SWState.BEFORE_START;
 
     }
@@ -50,7 +49,7 @@ class StopWatch {
 
     toLeftString_() {
         var totalSeconds = Math.ceil(this.left_() / 1000);
-        if (totalSeconds <= 10) {
+        if (totalSeconds < 10) {
             return totalSeconds;
         } else {
             var hours = Math.floor(totalSeconds / 3600);
@@ -106,15 +105,12 @@ class StopWatch {
             const duration = Date.now() - this.started;
             this.onTick();
             if (duration >= this.mseconds) {
-                // var synthes = new SpeechSynthesisUtterance("終了です。");
-                // synthes.lang = "ja-JP";
-                // speechSynthesis.speak(synthes);
                 this.onFinish();
                 this.swstate = SWState.FINISHED;
             } else {
                 this.tick_();
             }
-        }, 100))
+        }, 90))
     }
 }
 
@@ -125,9 +121,13 @@ class GameTimer extends Component {
             {title: "外交フェイズ", duration: 15 * 60},
             {title: "命令記述フェイズ", duration: 5 * 60},
             {title: "命令解決フェイズ", duration: 10 * 60},
-            // {title: "A", duration: 3},
-            // {title: "B", duration: 3},
-            // {title: "C", duration: 3},
+            // {title: "A", duration: 13},
+            // {title: "B", duration: 13},
+            // {title: "C", duration: 13},
+            // {title: "外交フェイズ", duration: 12},
+            // {title: "命令記述フェイズ", duration: 12},
+            // {title: "命令解決フェイズ", duration: 12},
+
         ];
 
         this.state = {timerIndex: 0};
