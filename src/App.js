@@ -13,12 +13,12 @@ import ImageTimerOff from 'material-ui/svg-icons/image/timer-off';
 import AvPlayArrow from 'material-ui/svg-icons/av/play-arrow';
 import AvPause from 'material-ui/svg-icons/av/pause';
 import NoSleep from 'nosleep.js/NoSleep';
+import Divider from 'material-ui/Divider';
 
 class SWState extends Enum {
 }
 
 SWState.initEnum(['BEFORE_START', 'RUNNING', "SUSPEND", "FINISHED"]);
-
 
 
 class StopWatch {
@@ -147,7 +147,6 @@ class GameTimer extends Component {
     }
 
     setTimer_(i) {
-        console.log(i);
         const sw = new StopWatch(this.timers[i].title,
             this.timers[i].duration,
             () => {
@@ -191,42 +190,48 @@ class GameTimer extends Component {
                 <List>
                     {this.timers.map((e, i) =>
                         <ListItem
+                            disabled={true}
                             primaryText={
-                                `${e.title} ${GameTimer.timeformat_(e.duration)}`
+                                `${e.title} (${GameTimer.timeformat_(e.duration)})`
                             }
                             key={i}
                             style={{backgroundColor: i === this.state.timerIndex ? "lime" : "white"}}
                             rightIcon={i === this.state.timerIndex ? <ImageTimer/> : <ImageTimerOff/>}/>)
                     }
-                </List>
-                <div className="timedisplay">{this.state.title}</div>
-                <div className="timedisplay">{this.state.time}</div>
-                <RaisedButton label={this.state.label} icon={this.state.icon} onClick={() => {
-                    this.noSleep.enable();
-                    if ([SWState.BEFORE_START, SWState.SUSPEND].includes(this.state.sw.getSWState())) {
-                        this.state.sw.go();
-                        this.setState({
-                            label: "Pause",
-                            icon: <AvPause/>
-                        })
-                    } else {
-                        this.state.sw.pause();
-                        this.setState({
-                            label: "Go",
-                            icon: <AvPlayArrow/>
+                    <Divider/>
+                    <div disabled={true} className="timedisplay">{this.state.time}</div>
+                    <Divider/>
+                    <ListItem disabled={true} primaryText={
+                        <div>
+                            <RaisedButton label={this.state.label} icon={this.state.icon} onClick={() => {
+                                this.noSleep.enable();
+                                if ([SWState.BEFORE_START, SWState.SUSPEND].includes(this.state.sw.getSWState())) {
+                                    this.state.sw.go();
+                                    this.setState({
+                                        label: "Pause",
+                                        icon: <AvPause/>
+                                    })
+                                } else {
+                                    this.state.sw.pause();
+                                    this.setState({
+                                        label: "Go",
+                                        icon: <AvPlayArrow/>
 
-                        })
-                    }
-                }}/>
-                <RaisedButton label="Reset" secondary={true} onClick={() => {
-                    this.state.sw.pause();
-                    this.noSleep.disable();
-                    this.resetTimer();
-                }}/>
-                <hr />
-                <div>
-                    <img alt="https://goo.gl/jXBYUq" src="https://goo.gl/jXBYUq.qr"/>
-                </div>
+                                    })
+                                }
+                            }}/>
+                            <RaisedButton label="Reset" secondary={true} onClick={() => {
+                                this.state.sw.pause();
+                                this.noSleep.disable();
+                                this.resetTimer();
+                            }}/></div>}/>
+                    <Divider />
+                    <ListItem disabled={true} primaryText={<div>&copy; Copyright 2016 TANIGUCHI Takaki <a
+                        href="https://github.com/takaki/gametimer">https://github.com/takaki/gametimer</a></div>}/>
+                    <Divider />
+                    <ListItem disabled={true}
+                              primaryText={<img alt="https://goo.gl/jXBYUq" src="https://goo.gl/jXBYUq.qr"/> }/>
+                </List>
             </div>
         )
     }

@@ -23,6 +23,10 @@
   to { transform: rotate(360deg); }
 }
 
+.titledisplay {
+  font-size: 8vw;
+}
+
 .timedisplay {
-  font-size: 100px;
+  font-size: 20vw;
 }
