@@ -19,8 +19,6 @@ class SWState extends Enum {
 
 SWState.initEnum(['BEFORE_START', 'RUNNING', "SUSPEND", "FINISHED"]);
 
-var nosleep = new NoSleep();
-nosleep.enable();
 
 
 class StopWatch {
@@ -221,12 +219,22 @@ class GameTimer extends Component {
                     this.state.sw.pause();
                     this.resetTimer();
                 }}/>
+                <hr />
+                <div>
+                    <img alt="https://goo.gl/jXBYUq" src="https://goo.gl/jXBYUq.qr"/>
+                </div>
             </div>
         )
     }
 }
 
 class App extends Component {
+    constructor() {
+        super();
+        this.noSleep = new NoSleep();
+        this.noSleep.enable();
+
+    }
     render() {
         return (
             <MuiThemeProvider>
