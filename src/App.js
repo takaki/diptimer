@@ -232,7 +232,7 @@ class GameTimer extends Component {
                             rightIcon={i === this.state.timerIndex ? <ImageTimer/> : <ImageTimerOff/>}/>)
                     }
                     <Divider/>
-                    <div className={this.state.finish ? "finish-time-display" : "time-display"}>{this.state.time}</div>
+                    <div className={this.state.finish ? "finish-time-display" : "time-display"}><code>{this.state.time}</code></div>
                     <Divider/>
                     <ListItem disabled={true} primaryText={
                         <div>
