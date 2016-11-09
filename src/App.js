@@ -211,15 +211,11 @@ class GameTimer extends Component {
     render() {
         return (
             <div>
-                <Toolbar>
-                    <ToolbarGroup firstChild={true}>
-                        <DropDownMenu value={this.state.menuIndex}
-                                      onChange={(event, index, value) => this.onChange(value)}>
-                            {GameTimer.timerMenu.map((e, i) =>
-                                <MenuItem value={i} key={i} primaryText={GameTimer.timerMenu[i].name}/>)}
-                        </DropDownMenu>
-                    </ToolbarGroup>
-                </Toolbar>
+                <DropDownMenu value={this.state.menuIndex}
+                              onChange={(event, index, value) => this.onChange(value)}>
+                    {GameTimer.timerMenu.map((e, i) =>
+                        <MenuItem value={i} key={i} primaryText={GameTimer.timerMenu[i].name}/>)}
+                </DropDownMenu>
                 <List>
                     {this.timers.map((e, i) =>
                         <ListItem
@@ -232,30 +228,36 @@ class GameTimer extends Component {
                             rightIcon={i === this.state.timerIndex ? <ImageTimer/> : <ImageTimerOff/>}/>)
                     }
                     <Divider/>
-                    <div className={this.state.finish ? "finish-time-display" : "time-display"}><code>{this.state.time}</code></div>
+                    <div className={this.state.finish ? "finish-time-display" : "time-display"}>
+                        <code>{this.state.time}</code></div>
                     <Divider/>
-                    <ListItem disabled={true} primaryText={
+                    <ListItem disabled={true}>
                         <div>
-                            <RaisedButton label={this.state.label} icon={this.state.icon} onClick={() => {
-                                this.noSleep.enable();
-                                if ([SWState.BEFORE_START, SWState.SUSPEND].includes(this.sw.getSWState())) {
-                                    this.sw.go();
-                                    this.setState({
-                                        label: "Pause",
-                                        icon: <AvPause/>
-                                    })
-                                } else {
-                                    this.sw.pause();
-                                    this.setState({
-                                        label: "Go",
-                                        icon: <AvPlayArrow/>
+                            {
+                                this.state.finish ? "" :
+                                    <RaisedButton label={this.state.label} icon={this.state.icon} onClick={() => {
+                                        this.noSleep.enable();
+                                        if ([SWState.BEFORE_START, SWState.SUSPEND].includes(this.sw.getSWState())) {
+                                            this.sw.go();
+                                            this.setState({
+                                                label: "Pause",
+                                                icon: <AvPause/>
+                                            })
+                                        } else {
+                                            this.sw.pause();
+                                            this.setState({
+                                                label: "Go",
+                                                icon: <AvPlayArrow/>
 
-                                    })
-                                }
-                            }}/>
+                                            })
+                                        }
+                                    }}/>
+                            }
                             <RaisedButton label="Reset" secondary={true} onClick={() => {
                                 this.resetTimer();
-                            }}/></div>}/>
+                            }}/>
+                        </div>
+                    </ListItem>
                     <Divider />
                     <div>&copy; Copyright 2016 TANIGUCHI Takaki</div>
                     <div><a href="https://github.com/takaki/gametimer">https://github.com/takaki/gametimer</a></div>
