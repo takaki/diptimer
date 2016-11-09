@@ -14,6 +14,10 @@ import AvPlayArrow from 'material-ui/svg-icons/av/play-arrow';
 import AvPause from 'material-ui/svg-icons/av/pause';
 import NoSleep from 'nosleep.js/NoSleep';
 import Divider from 'material-ui/Divider';
+import MenuItem from 'material-ui/MenuItem';
+import DropDownMenu from 'material-ui/DropDownMenu';
+import {Toolbar, ToolbarGroup} from 'material-ui/Toolbar';
+
 
 class SWState extends Enum {
 }
@@ -115,68 +119,27 @@ class StopWatch {
 }
 
 class GameTimer extends Component {
-    constructor() {
-        super();
-        this.timers = [
+    static timerMenu = [{
+        name: "テスト000",
+        timers: [
+            {title: "A", duration: 3},
+            {title: "B", duration: 3},
+        ]
+    }, {
+        name: "ディプロマシー",
+        timers: [
             {title: "外交フェイズ", duration: 15 * 60},
             {title: "命令記述フェイズ", duration: 5 * 60},
-            {title: "命令解決フェイズ", duration: 10 * 60},
-            // {title: "A", duration: 13},
-            // {title: "B", duration: 13},
-            // {title: "C", duration: 13},
-            // {title: "外交フェイズ", duration: 12},
-            // {title: "命令記述フェイズ", duration: 12},
-            // {title: "命令解決フェイズ", duration: 12},
-
-        ];
-
-        this.state = {timerIndex: 0};
-
-        this.noSleep = new NoSleep();
-    }
-
-    componentWillMount() {
-        this.resetTimer();
-    }
-
-    resetTimer() {
-        this.setState({
-            timerIndex: 0,
-        });
-        this.setTimer_(0);
-    }
-
-    setTimer_(i) {
-        const sw = new StopWatch(this.timers[i].title,
-            this.timers[i].duration,
-            () => {
-                this.setState({time: this.state.sw.toString()});
-            },
-            () => {
-                if (this.state.timerIndex + 1 < this.timers.length) {
-                    this.nextTimer();
-                    this.state.sw.go();
-                } else {
-                    var synthes = new SpeechSynthesisUtterance("終了です。");
-                    synthes.lang = "ja-JP";
-                    speechSynthesis.speak(synthes);
-                }
-            }
-            )
-            ;
-        this.setState({
-            sw: sw,
-            time: sw.toString(),
-            title: this.timers[i].title,
-            label: "Go",
-            icon: <AvPlayArrow/>,
-        })
-    }
-
-    nextTimer() {
-        this.setState({timerIndex: this.state.timerIndex + 1});
-        this.setTimer_(this.state.timerIndex);
-    }
+            {title: "命令解決フェイズ", duration: 10 * 60}
+        ]
+    }, {
+        name: "テスト",
+        timers: [
+            {title: "A", duration: 13},
+            {title: "B", duration: 13},
+            {title: "C", duration: 13}
+        ]
+    }];
 
     static timeformat_(d) {
         const m = Math.floor(d / 60);
@@ -184,9 +147,82 @@ class GameTimer extends Component {
         return `${m}:${(s < 10 ? "0" + s : s)}`
     }
 
+    constructor() {
+        super();
+        this.noSleep = new NoSleep();
+
+    }
+
+    componentWillMount() {
+        this.setTimerMenu(0);
+    }
+
+    setTimerMenu(index) {
+        this.timers = GameTimer.timerMenu[index].timers;
+        this.setState({
+            menuIndex: index,
+            timerIndex: 0
+        });
+        this.setTimer_(0);
+    }
+
+    setTimer_(i) {
+        console.log(this.timers);
+        this.sw = new StopWatch(this.timers[i].title,
+            this.timers[i].duration,
+            () => {
+                this.setState({time: this.sw.toString()});
+            },
+            () => {
+                if (this.state.timerIndex + 1 < this.timers.length) {
+                    this.setState({timerIndex: this.state.timerIndex + 1});
+                    this.setTimer_(this.state.timerIndex);
+                    this.sw.go();
+                } else {
+                    var synthes = new SpeechSynthesisUtterance("終了です。");
+                    synthes.lang = "ja-JP";
+                    speechSynthesis.speak(synthes);
+                }
+            }
+        );
+        this.setState({
+            time: this.sw.toString(),
+            label: "Go",
+            icon: <AvPlayArrow/>,
+        })
+    }
+
+    resetTimer() {
+        this.noSleep.disable();
+        this.sw.pause();
+        this.setState({
+            timerIndex: 0,
+        });
+        this.setTimer_(0);
+    }
+
+    onChange(value) {
+        this.sw.pause();
+        this.timers = GameTimer.timerMenu[value].timers;
+        this.setState({
+            timerIndex: 0,
+            menuIndex: value
+        });
+        this.setTimer_(0);
+    }
+
     render() {
         return (
             <div>
+                <Toolbar>
+                    <ToolbarGroup firstChild={true}>
+                        <DropDownMenu value={this.state.menuIndex}
+                                      onChange={(event, index, value) => this.onChange(value)}>
+                            {GameTimer.timerMenu.map((e, i) =>
+                                <MenuItem value={i} key={i} primaryText={GameTimer.timerMenu[i].name}/>)}
+                        </DropDownMenu>
+                    </ToolbarGroup>
+                </Toolbar>
                 <List>
                     {this.timers.map((e, i) =>
                         <ListItem
@@ -205,14 +241,14 @@ class GameTimer extends Component {
                         <div>
                             <RaisedButton label={this.state.label} icon={this.state.icon} onClick={() => {
                                 this.noSleep.enable();
-                                if ([SWState.BEFORE_START, SWState.SUSPEND].includes(this.state.sw.getSWState())) {
-                                    this.state.sw.go();
+                                if ([SWState.BEFORE_START, SWState.SUSPEND].includes(this.sw.getSWState())) {
+                                    this.sw.go();
                                     this.setState({
                                         label: "Pause",
                                         icon: <AvPause/>
                                     })
                                 } else {
-                                    this.state.sw.pause();
+                                    this.sw.pause();
                                     this.setState({
                                         label: "Go",
                                         icon: <AvPlayArrow/>
@@ -221,8 +257,6 @@ class GameTimer extends Component {
                                 }
                             }}/>
                             <RaisedButton label="Reset" secondary={true} onClick={() => {
-                                this.state.sw.pause();
-                                this.noSleep.disable();
                                 this.resetTimer();
                             }}/></div>}/>
                     <Divider />
