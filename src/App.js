@@ -59,7 +59,7 @@ class StopWatch {
             var hours = Math.floor(totalSeconds / 3600);
             var minutes = Math.floor((totalSeconds % 3600) / 60);
             var seconds = Math.floor(totalSeconds % 60);
-            return `あと${(hours > 0 ? hours + "時間" : "")}${(minutes > 0 ? minutes + "分" : "")}${(seconds > 0 ? seconds + "秒" : "")}です`;
+            return `残り${(hours > 0 ? hours + "時間" : "")}${(minutes > 0 ? minutes + "分" : "")}${(seconds > 0 ? seconds + "秒" : "")}です`;
         }
     }
 
@@ -120,12 +120,6 @@ class StopWatch {
 
 class GameTimer extends Component {
     static timerMenu = [{
-        name: "テスト000",
-        timers: [
-            {title: "A", duration: 3},
-            {title: "B", duration: 3},
-        ]
-    }, {
         name: "ディプロマシー",
         timers: [
             {title: "外交フェイズ", duration: 15 * 60},
@@ -135,11 +129,22 @@ class GameTimer extends Component {
     }, {
         name: "テスト",
         timers: [
-            {title: "A", duration: 13},
-            {title: "B", duration: 13},
-            {title: "C", duration: 13}
+            {title: "A", duration: 3},
+            {title: "B", duration: 3},
+            {title: "C", duration: 3}
         ]
-    }];
+    }, {
+        name: "テスト2",
+        timers: [
+            {title: "A", duration: 1},
+        ]
+    }].concat(
+        Array.from(new Array(15).keys()).map(e => {
+            const i = e + 1;
+            return {
+                name: `${i}分`, timers: [{title: `${i}分`, duration: i * 60}]
+            }
+        }));
 
     static timeformat_(d) {
         const m = Math.floor(d / 60);
@@ -157,17 +162,7 @@ class GameTimer extends Component {
         this.setTimerMenu(0);
     }
 
-    setTimerMenu(index) {
-        this.timers = GameTimer.timerMenu[index].timers;
-        this.setState({
-            menuIndex: index,
-            timerIndex: 0
-        });
-        this.setTimer_(0);
-    }
-
     setTimer_(i) {
-        console.log(this.timers);
         this.sw = new StopWatch(this.timers[i].title,
             this.timers[i].duration,
             () => {
@@ -182,33 +177,35 @@ class GameTimer extends Component {
                     var synthes = new SpeechSynthesisUtterance("終了です。");
                     synthes.lang = "ja-JP";
                     speechSynthesis.speak(synthes);
+                    this.setState({finish: true});
                 }
             }
         );
         this.setState({
             time: this.sw.toString(),
-            label: "Go",
-            icon: <AvPlayArrow/>,
         })
     }
 
-    resetTimer() {
-        this.noSleep.disable();
-        this.sw.pause();
+    setTimerMenu(index) {
+        this.timers = GameTimer.timerMenu[index].timers;
         this.setState({
+            menuIndex: index,
             timerIndex: 0,
+            label: "Go",
+            icon: <AvPlayArrow/>,
+            finish: false
         });
         this.setTimer_(0);
     }
 
+    resetTimer() {
+        this.onChange(this.state.menuIndex)
+    }
+
     onChange(value) {
+        this.noSleep.disable();
         this.sw.pause();
-        this.timers = GameTimer.timerMenu[value].timers;
-        this.setState({
-            timerIndex: 0,
-            menuIndex: value
-        });
-        this.setTimer_(0);
+        this.setTimerMenu(value);
     }
 
     render() {
@@ -235,7 +232,7 @@ class GameTimer extends Component {
                             rightIcon={i === this.state.timerIndex ? <ImageTimer/> : <ImageTimerOff/>}/>)
                     }
                     <Divider/>
-                    <div disabled={true} className="timedisplay">{this.state.time}</div>
+                    <div className={this.state.finish ? "finish-time-display" : "time-display"}>{this.state.time}</div>
                     <Divider/>
                     <ListItem disabled={true} primaryText={
                         <div>
@@ -260,11 +257,10 @@ class GameTimer extends Component {
                                 this.resetTimer();
                             }}/></div>}/>
                     <Divider />
-                    <ListItem disabled={true} primaryText={<div>&copy; Copyright 2016 TANIGUCHI Takaki <a
-                        href="https://github.com/takaki/gametimer">https://github.com/takaki/gametimer</a></div>}/>
-                    <Divider />
-                    <ListItem disabled={true}
-                              primaryText={<img alt="https://goo.gl/jXBYUq" src="https://goo.gl/jXBYUq.qr"/> }/>
+                    <div>&copy; Copyright 2016 TANIGUCHI Takaki</div>
+                    <div><a href="https://github.com/takaki/gametimer">https://github.com/takaki/gametimer</a></div>
+                    <div>
+                        <img alt="https://goo.gl/jXBYUq" src="https://goo.gl/jXBYUq.qr"/></div>
                 </List>
             </div>
         )
