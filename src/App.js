@@ -261,7 +261,7 @@ class GameTimer extends Component {
                     <div>&copy; Copyright 2016 TANIGUCHI Takaki</div>
                     <div><a href="https://github.com/takaki/gametimer">https://github.com/takaki/gametimer</a></div>
                     <div>
-                        <img alt="https://goo.gl/jXBYUq" src="https://goo.gl/jXBYUq.qr"/></div>
+                        <img alt="https://goo.gl/qR4SpH" src="https://goo.gl/qR4SpH.qr"/></div>
                 </List>
             </div>
         )
