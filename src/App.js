@@ -16,7 +16,6 @@ import NoSleep from 'nosleep.js/NoSleep';
 import Divider from 'material-ui/Divider';
 import MenuItem from 'material-ui/MenuItem';
 import DropDownMenu from 'material-ui/DropDownMenu';
-import {Toolbar, ToolbarGroup} from 'material-ui/Toolbar';
 
 
 class SWState extends Enum {
