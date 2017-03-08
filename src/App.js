@@ -1,21 +1,19 @@
-import injectTapEventPlugin from 'react-tap-event-plugin';
+import injectTapEventPlugin from "react-tap-event-plugin";
+import {Enum} from "enumify";
+import React, {Component} from "react";
+import "./App.css";
+import MuiThemeProvider from "material-ui/styles/MuiThemeProvider";
+import RaisedButton from "material-ui/RaisedButton";
+import {List, ListItem} from "material-ui/List";
+import ImageTimer from "material-ui/svg-icons/image/timer";
+import ImageTimerOff from "material-ui/svg-icons/image/timer-off";
+import AvPlayArrow from "material-ui/svg-icons/av/play-arrow";
+import AvPause from "material-ui/svg-icons/av/pause";
+import NoSleep from "nosleep.js/NoSleep";
+import Divider from "material-ui/Divider";
+import MenuItem from "material-ui/MenuItem";
+import DropDownMenu from "material-ui/DropDownMenu";
 injectTapEventPlugin();
-
-import {Enum} from 'enumify';
-import React, {Component} from 'react';
-import './App.css';
-
-import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-import RaisedButton from 'material-ui/RaisedButton';
-import {List, ListItem} from 'material-ui/List';
-import ImageTimer from 'material-ui/svg-icons/image/timer';
-import ImageTimerOff from 'material-ui/svg-icons/image/timer-off';
-import AvPlayArrow from 'material-ui/svg-icons/av/play-arrow';
-import AvPause from 'material-ui/svg-icons/av/pause';
-import NoSleep from 'nosleep.js/NoSleep';
-import Divider from 'material-ui/Divider';
-import MenuItem from 'material-ui/MenuItem';
-import DropDownMenu from 'material-ui/DropDownMenu';
 
 
 class SWState extends Enum {
@@ -39,25 +37,25 @@ class StopWatch {
     }
 
     toString() {
-        var totalSeconds = Math.ceil(this.left_() / 1000);
+        const totalSeconds = Math.ceil(this.left_() / 1000);
         if (totalSeconds <= 0) {
             return `00:00:00`;
         }
-        var hours = Math.floor(totalSeconds / 3600);
-        var minutes = Math.floor((totalSeconds % 3600) / 60);
-        var seconds = Math.floor(totalSeconds % 60);
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = Math.floor(totalSeconds % 60);
 
         return `${(hours < 10 ? "0" + hours : hours )}:${(minutes < 10 ? "0" + minutes : minutes)}:${(seconds < 10 ? "0" + seconds : seconds)}`;
     }
 
     toLeftString_() {
-        var totalSeconds = Math.ceil(this.left_() / 1000);
+        const totalSeconds = Math.ceil(this.left_() / 1000);
         if (totalSeconds < 10) {
             return totalSeconds;
         } else {
-            var hours = Math.floor(totalSeconds / 3600);
-            var minutes = Math.floor((totalSeconds % 3600) / 60);
-            var seconds = Math.floor(totalSeconds % 60);
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = Math.floor(totalSeconds % 60);
             return `残り${(hours > 0 ? hours + "時間" : "")}${(minutes > 0 ? minutes + "分" : "")}${(seconds > 0 ? seconds + "秒" : "")}です`;
         }
     }
@@ -71,7 +69,7 @@ class StopWatch {
             return;
         }
         if (this.swstate === SWState.BEFORE_START) {
-            var synthes = new SpeechSynthesisUtterance(`${this.title}です`);
+            const synthes = new SpeechSynthesisUtterance(`${this.title}です`);
             synthes.lang = "ja-JP";
             speechSynthesis.speak(synthes);
         }
@@ -98,7 +96,7 @@ class StopWatch {
 
     tick_() {
         if (this.left_() / 1000 < this.checkpoint[0]) {
-            var synthes = new SpeechSynthesisUtterance(this.toLeftString_());
+            const synthes = new SpeechSynthesisUtterance(this.toLeftString_());
             synthes.lang = "ja-JP";
             synthes.rate = 1.2;
             speechSynthesis.speak(synthes);
@@ -173,7 +171,7 @@ class GameTimer extends Component {
                     this.setTimer_(this.state.timerIndex);
                     this.sw.go();
                 } else {
-                    var synthes = new SpeechSynthesisUtterance("終了です。");
+                    const synthes = new SpeechSynthesisUtterance("終了です。");
                     synthes.lang = "ja-JP";
                     speechSynthesis.speak(synthes);
                     this.setState({finish: true});
