@@ -4,7 +4,7 @@ import React, {Component} from "react";
 import "./App.css";
 import MuiThemeProvider from "material-ui/styles/MuiThemeProvider";
 import RaisedButton from "material-ui/RaisedButton";
-import {List, ListItem} from "material-ui/List";
+import {List as MList, ListItem} from "material-ui/List";
 import ImageTimer from "material-ui/svg-icons/image/timer";
 import ImageTimerOff from "material-ui/svg-icons/image/timer-off";
 import AvPlayArrow from "material-ui/svg-icons/av/play-arrow";
@@ -213,7 +213,7 @@ class GameTimer extends Component {
                     {GameTimer.timerMenu.map((e, i) =>
                         <MenuItem value={i} key={i} primaryText={GameTimer.timerMenu[i].name}/>)}
                 </DropDownMenu>
-                <List>
+                <MList>
                     {this.timers.map((e, i) =>
                         <ListItem
                             disabled={true}
@@ -257,7 +257,7 @@ class GameTimer extends Component {
                         </div>
                     </ListItem>
                     <Divider />
-                </List>
+                </MList>
             </div>
         )
     }
