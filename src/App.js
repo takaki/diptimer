@@ -30,7 +30,7 @@ class StopWatch {
         this.onFinish = onFinish;
         this.mseconds = seconds * 1000;
         this.timeoutIds = [];
-        this.checkpoint = [14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1].map(i=>i * 60).concat([50, 40, 30, 20, 10, 5, 4, 3, 2, 1]).filter(element => element < seconds);
+        this.checkpoint = [14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1].map(i => i * 60).concat([50, 40, 30, 20, 10, 5, 4, 3, 2, 1]).filter(element => element < seconds);
         //this.checkpoint = [3 * 60, 2 * 60, 60, 30, 20, 10, 1].filter(element => element < seconds);
         this.swstate = SWState.BEFORE_START;
 
@@ -74,7 +74,7 @@ class StopWatch {
             speechSynthesis.speak(synthes);
         }
         this.started = new Date();
-        this.timeoutIds.push(setTimeout(()=> this.tick_(), 100));
+        this.timeoutIds.push(setTimeout(() => this.tick_(), 100));
         this.swstate = SWState.RUNNING;
     }
 
@@ -217,15 +217,16 @@ class GameTimer extends Component {
                     {this.timers.map((e, i) =>
                         <ListItem
                             disabled={true}
+                            className="timer-list"
                             primaryText={
                                 `${e.title} (${GameTimer.timeformat_(e.duration)})`
                             }
                             key={i}
-                            style={{backgroundColor: i === this.state.timerIndex ? "lime" : "white"}}
+                            data-is-current={i === this.state.timerIndex}
                             rightIcon={i === this.state.timerIndex ? <ImageTimer/> : <ImageTimerOff/>}/>)
                     }
                     <Divider/>
-                    <div className={this.state.finish ? "finish-time-display" : "time-display"}>
+                    <div className="time-display" data-is-finish={this.state.finish}>
                         <code>{this.state.time}</code></div>
                     <Divider/>
                     <ListItem disabled={true}>

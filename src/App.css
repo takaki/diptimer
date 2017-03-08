@@ -31,11 +31,18 @@
     font-size: 8vw;
 }
 
+.timer-list[data-is-current='true'] {
+    background-color: lime;
+}
+
+.timer-list {
+    background-color: white;
+}
+
 .time-display {
     font-size: 20vw;
 }
 
-.finish-time-display {
-    font-size: 20vw;
+.time-display[data-is-finish="true"] {
     background-color: red;
 }
