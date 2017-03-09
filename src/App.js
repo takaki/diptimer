@@ -15,7 +15,7 @@ import DropDownMenu from "material-ui/DropDownMenu";
 import {createStore} from "redux";
 import {handleActions, createAction} from "redux-actions";
 import {connect, Provider} from "react-redux";
-import DataStore, {SWState} from "./model"
+import DataStore from "./model";
 injectTapEventPlugin();
 
 
@@ -30,7 +30,6 @@ class GameTimer extends Component {
     constructor() {
         super();
         this.noSleep = new NoSleep();
-
     }
 
     componentWillMount() {
@@ -91,13 +90,7 @@ class GameTimer extends Component {
                                                   icon={this.props.store.running ? <AvPause/> : <AvPlayArrow/> }
                                                   onClick={() => {
                                                       this.noSleep.enable();
-                                                      if ([SWState.BEFORE_START, SWState.SUSPEND].includes(this.props.store.sw.getSWState())) {
-                                                          this.props.store.sw.go();
-                                                          this.props.updateStore(this.props.store.setLabel("Pause").setRunning(true));
-                                                      } else {
-                                                          this.props.store.sw.pause();
-                                                          this.props.updateStore(this.props.store.setLabel("Go").setRunning(false));
-                                                      }
+                                                      this.props.updateStore(this.props.store.toggleSwitch());
                                                   }}/>
                             }
                             <RaisedButton label="Reset" secondary={true} onClick={() => {

@@ -192,6 +192,17 @@ class DataStore extends Record({
     getTime() {
         return this.sw.toString();
     }
+
+    toggleSwitch() {
+        if ([SWState.BEFORE_START, SWState.SUSPEND].includes(this.sw.getSWState())) {
+            this.sw.go();
+            return this.setLabel("Pause").setRunning(true);
+        } else {
+            this.sw.pause();
+            return this.setLabel("Go").setRunning(false);
+        }
+
+    }
 }
 
 export default  DataStore;
