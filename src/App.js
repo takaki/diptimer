@@ -8,7 +8,6 @@ import ImageTimer from "material-ui/svg-icons/image/timer";
 import ImageTimerOff from "material-ui/svg-icons/image/timer-off";
 import AvPlayArrow from "material-ui/svg-icons/av/play-arrow";
 import AvPause from "material-ui/svg-icons/av/pause";
-import NoSleep from "nosleep.js/NoSleep";
 import Divider from "material-ui/Divider";
 import MenuItem from "material-ui/MenuItem";
 import DropDownMenu from "material-ui/DropDownMenu";
@@ -25,11 +24,6 @@ class GameTimer extends Component {
         const m = Math.floor(d / 60);
         const s = d % 60;
         return `${m}:${(s < 10 ? "0" + s : s)}`
-    }
-
-    constructor() {
-        super();
-        this.noSleep = new NoSleep();
     }
 
     componentWillMount() {
@@ -53,7 +47,7 @@ class GameTimer extends Component {
             }
         };
         this.props.store.sw.pause();
-        this.noSleep.disable();
+        this.props.store.noSleep.disable();
         this.props.updateStore(this.props.store.setMenuIndex(menuIndex).setSw(onTick, onFinish));
     }
 
@@ -89,7 +83,7 @@ class GameTimer extends Component {
                                     <RaisedButton label={this.props.store.label}
                                                   icon={this.props.store.running ? <AvPause/> : <AvPlayArrow/> }
                                                   onClick={() => {
-                                                      this.noSleep.enable();
+                                                      this.props.store.noSleep.enable();
                                                       this.props.updateStore(this.props.store.toggleSwitch());
                                                   }}/>
                             }

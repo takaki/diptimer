@@ -1,5 +1,6 @@
 import {Record, fromJS} from "immutable";
 import {Enum} from "enumify";
+import NoSleep from "nosleep.js/NoSleep";
 
 export class SWState extends Enum {
 }
@@ -108,6 +109,7 @@ class DataStore extends Record({
     label: "Go",
     running: false,
     finish: false,
+    noSleep: new NoSleep(),
     sw: new StopWatch("dummy", 0),
 }) {
     static timerMenu = fromJS([{
