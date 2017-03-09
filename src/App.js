@@ -4,7 +4,7 @@ import React, {Component} from "react";
 import "./App.css";
 import MuiThemeProvider from "material-ui/styles/MuiThemeProvider";
 import RaisedButton from "material-ui/RaisedButton";
-import {List as MList, ListItem} from "material-ui/List";
+import {List, ListItem} from "material-ui/List";
 import ImageTimer from "material-ui/svg-icons/image/timer";
 import ImageTimerOff from "material-ui/svg-icons/image/timer-off";
 import AvPlayArrow from "material-ui/svg-icons/av/play-arrow";
@@ -13,6 +13,10 @@ import NoSleep from "nosleep.js/NoSleep";
 import Divider from "material-ui/Divider";
 import MenuItem from "material-ui/MenuItem";
 import DropDownMenu from "material-ui/DropDownMenu";
+import {createStore} from "redux";
+import {handleActions, createAction} from "redux-actions";
+import {connect, Provider} from "react-redux";
+import DataStore from "./model"
 injectTapEventPlugin();
 
 
@@ -116,32 +120,6 @@ class StopWatch {
 }
 
 class GameTimer extends Component {
-    static timerMenu = [{
-        name: "ディプロマシー",
-        timers: [
-            {title: "外交フェイズ", duration: 15 * 60},
-            {title: "命令記述フェイズ", duration: 5 * 60},
-            {title: "命令解決フェイズ", duration: 10 * 60}
-        ]
-    }, {
-        name: "テスト",
-        timers: [
-            {title: "A", duration: 3},
-            {title: "B", duration: 3},
-            {title: "C", duration: 3}
-        ]
-    }, {
-        name: "テスト2",
-        timers: [
-            {title: "A", duration: 1},
-        ]
-    }].concat(
-        Array.from(new Array(15).keys()).map(e => {
-            const i = e + 1;
-            return {
-                name: `${i}分`, timers: [{title: `${i}分`, duration: i * 60}]
-            }
-        }));
 
     static timeformat_(d) {
         const m = Math.floor(d / 60);
@@ -156,120 +134,136 @@ class GameTimer extends Component {
     }
 
     componentWillMount() {
-        this.setTimerMenu(0);
+        this.resetTimer(this.props.store.menuIndex);
+        this.makeStopWatch(this.props.store);
     }
 
-    setTimer_(i) {
-        this.sw = new StopWatch(this.timers[i].title,
-            this.timers[i].duration,
+
+    makeStopWatch(store) {
+        this.sw = new StopWatch(store.getTitle(),
+            store.getDuration(),
             () => {
-                this.setState({time: this.sw.toString()});
+                this.props.updateStore(this.props.store.setTime(this.sw.toString()));
             },
             () => {
-                if (this.state.timerIndex + 1 < this.timers.length) {
-                    this.setState({timerIndex: this.state.timerIndex + 1});
-                    this.setTimer_(this.state.timerIndex);
+                if (this.props.store.timerIndex + 1 < this.props.store.getTimerList().size) {
+                    this.props.updateStore(this.props.store.setTimerIndex(this.props.store.timerIndex + 1));
+                    this.makeStopWatch(this.props.store);
                     this.sw.go();
                 } else {
                     const synthes = new SpeechSynthesisUtterance("終了です。");
                     synthes.lang = "ja-JP";
                     speechSynthesis.speak(synthes);
-                    this.setState({finish: true});
+                    this.props.updateStore(this.props.store.setFinish(true));
                 }
             }
         );
-        this.setState({
-            time: this.sw.toString(),
-        })
     }
 
-    setTimerMenu(index) {
-        this.timers = GameTimer.timerMenu[index].timers;
-        this.setState({
-            menuIndex: index,
-            timerIndex: 0,
-            label: "Go",
-            icon: <AvPlayArrow/>,
-            finish: false
-        });
-        this.setTimer_(0);
-    }
-
-    resetTimer() {
-        this.onChange(this.state.menuIndex)
+    resetTimer(menuIndex) {
+        const store = this.props.store.setMenuIndex(menuIndex);
+        this.makeStopWatch(store);
+        this.props.updateStore(store.setTime(this.sw.toString()));
     }
 
     onChange(value) {
-        this.noSleep.disable();
         this.sw.pause();
-        this.setTimerMenu(value);
+        this.noSleep.disable();
+        this.resetTimer(value);
     }
 
     render() {
         return (
             <div>
-                <DropDownMenu value={this.state.menuIndex}
+                <DropDownMenu value={this.props.store.menuIndex}
                               onChange={(event, index, value) => this.onChange(value)}>
-                    {GameTimer.timerMenu.map((e, i) =>
-                        <MenuItem value={i} key={i} primaryText={GameTimer.timerMenu[i].name}/>)}
+                    {DataStore.timerMenu.toKeyedSeq().map((e, i) =>
+                        <MenuItem value={i} key={i} primaryText={e.get('name')}/>).toArray()}
                 </DropDownMenu>
-                <MList>
-                    {this.timers.map((e, i) =>
+                <List>
+                    {this.props.store.getTimerList().toKeyedSeq().map((e, i) =>
                         <ListItem
                             disabled={true}
                             className="timer-list"
                             primaryText={
-                                `${e.title} (${GameTimer.timeformat_(e.duration)})`
+                                `${e.get('title')} (${GameTimer.timeformat_(e.get('duration'))})`
                             }
                             key={i}
-                            data-is-current={i === this.state.timerIndex}
-                            rightIcon={i === this.state.timerIndex ? <ImageTimer/> : <ImageTimerOff/>}/>)
+                            data-is-current={i === this.props.store.timerIndex}
+                            rightIcon={i === this.props.store.timerIndex ? <ImageTimer/> :
+                                <ImageTimerOff/>}/>).toArray()
                     }
                     <Divider/>
-                    <div className="time-display" data-is-finish={this.state.finish}>
-                        <code>{this.state.time}</code></div>
+                    <div className="time-display" data-is-finish={this.props.store.finish}>
+                        <code>{this.props.store.time} </code></div>
                     <Divider/>
                     <ListItem disabled={true}>
                         <div>
                             {
-                                this.state.finish ? "" :
-                                    <RaisedButton label={this.state.label} icon={this.state.icon} onClick={() => {
-                                        this.noSleep.enable();
-                                        if ([SWState.BEFORE_START, SWState.SUSPEND].includes(this.sw.getSWState())) {
-                                            this.sw.go();
-                                            this.setState({
-                                                label: "Pause",
-                                                icon: <AvPause/>
-                                            })
-                                        } else {
-                                            this.sw.pause();
-                                            this.setState({
-                                                label: "Go",
-                                                icon: <AvPlayArrow/>
-
-                                            })
-                                        }
-                                    }}/>
+                                this.props.store.finish ? "" :
+                                    <RaisedButton label={this.props.store.label}
+                                                  icon={this.props.store.running ? <AvPause/> : <AvPlayArrow/> }
+                                                  onClick={() => {
+                                                      this.noSleep.enable();
+                                                      if ([SWState.BEFORE_START, SWState.SUSPEND].includes(this.sw.getSWState())) {
+                                                          this.sw.go();
+                                                          this.props.updateStore(this.props.store.setLabel("Pause").setRunning(true));
+                                                      } else {
+                                                          this.sw.pause();
+                                                          this.props.updateStore(this.props.store.setLabel("Go").setRunning(false));
+                                                      }
+                                                  }}/>
                             }
                             <RaisedButton label="Reset" secondary={true} onClick={() => {
-                                this.resetTimer();
+                                this.resetTimer(this.props.store.menuIndex);
                             }}/>
                         </div>
                     </ListItem>
                     <Divider />
-                </MList>
+                </List>
             </div>
         )
     }
 }
 
+const initialState = new DataStore();
+
+
+const updateStore = createAction("UPDATE_MODEL");
+
+const reducer = handleActions({
+        [updateStore]: (state, action) => action.payload,
+    },
+    initialState
+);
+
+
+const store = createStore(reducer);
+
+
+function mapStateToProps(state, props) {
+    return {store: state}
+}
+
+
+function mapDispatchToProps(dispatch, props) {
+    return {
+        updateStore: function (m) {
+            dispatch(updateStore(m))
+        }
+    }
+
+}
+
+
 class App extends Component {
     render() {
+        const DApp = connect(mapStateToProps, mapDispatchToProps)(GameTimer);
         return (
             <MuiThemeProvider>
-                <div className="App">
-                    <GameTimer time={4}/>
-                </div>
+                <Provider store={store}>
+                    <DApp time={4}/>
+                </Provider>
             </MuiThemeProvider>
         );
     }
