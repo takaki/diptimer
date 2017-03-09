@@ -35,8 +35,8 @@ class GameTimer extends Component {
             this.props.updateStore(this.props.store.setTime(this.props.store.sw.toString()));
         };
         const onFinish = () => {
-            if (this.props.store.timerIndex + 1 < this.props.store.getTimerList().size) {
-                const store = this.props.store.setTimerIndex(this.props.store.timerIndex + 1).setSw(onTick, onFinish);
+            if (this.props.store.isTimerLeft()) {
+                const store = this.props.store.nextTimer().setSw(onTick, onFinish);
                 this.props.updateStore(store);
                 store.sw.go();
             } else {

@@ -99,11 +99,15 @@ export class StopWatch {
             }
         }, 90))
     }
+
+    isRun() {
+        return [SWState.BEFORE_START, SWState.SUSPEND].includes(this.getSWState())
+    }
 }
 
 
 class DataStore extends Record({
-    menuIndex: 1,
+    menuIndex: 0,
     timerIndex: 0,
     time: "",
     label: "Go",
@@ -195,8 +199,15 @@ class DataStore extends Record({
         return this.sw.toString();
     }
 
+    isTimerLeft() {
+        return this.timerIndex + 1 < this.getTimerList().size
+    }
+    nextTimer() {
+        return this.setTimerIndex(this.timerIndex + 1);
+    }
+
     toggleSwitch() {
-        if ([SWState.BEFORE_START, SWState.SUSPEND].includes(this.sw.getSWState())) {
+        if (this.sw.isRun()) {
             this.sw.go();
             return this.setLabel("Pause").setRunning(true);
         } else {
