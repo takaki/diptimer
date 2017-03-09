@@ -1,5 +1,4 @@
 import injectTapEventPlugin from "react-tap-event-plugin";
-import {Enum} from "enumify";
 import React, {Component} from "react";
 import "./App.css";
 import MuiThemeProvider from "material-ui/styles/MuiThemeProvider";
@@ -16,108 +15,9 @@ import DropDownMenu from "material-ui/DropDownMenu";
 import {createStore} from "redux";
 import {handleActions, createAction} from "redux-actions";
 import {connect, Provider} from "react-redux";
-import DataStore from "./model"
+import DataStore, {SWState} from "./model"
 injectTapEventPlugin();
 
-
-class SWState extends Enum {
-}
-
-SWState.initEnum(['BEFORE_START', 'RUNNING', "SUSPEND", "FINISHED"]);
-
-
-class StopWatch {
-    constructor(title, seconds, onTick, onFinish) {
-        this.title = title;
-        this.seconds = seconds;
-        this.onTick = onTick;
-        this.onFinish = onFinish;
-        this.mseconds = seconds * 1000;
-        this.timeoutIds = [];
-        this.checkpoint = [14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1].map(i => i * 60).concat([50, 40, 30, 20, 10, 5, 4, 3, 2, 1]).filter(element => element < seconds);
-        //this.checkpoint = [3 * 60, 2 * 60, 60, 30, 20, 10, 1].filter(element => element < seconds);
-        this.swstate = SWState.BEFORE_START;
-
-    }
-
-    toString() {
-        const totalSeconds = Math.ceil(this.left_() / 1000);
-        if (totalSeconds <= 0) {
-            return `00:00:00`;
-        }
-        const hours = Math.floor(totalSeconds / 3600);
-        const minutes = Math.floor((totalSeconds % 3600) / 60);
-        const seconds = Math.floor(totalSeconds % 60);
-
-        return `${(hours < 10 ? "0" + hours : hours )}:${(minutes < 10 ? "0" + minutes : minutes)}:${(seconds < 10 ? "0" + seconds : seconds)}`;
-    }
-
-    toLeftString_() {
-        const totalSeconds = Math.ceil(this.left_() / 1000);
-        if (totalSeconds < 10) {
-            return totalSeconds;
-        } else {
-            const hours = Math.floor(totalSeconds / 3600);
-            const minutes = Math.floor((totalSeconds % 3600) / 60);
-            const seconds = Math.floor(totalSeconds % 60);
-            return `残り${(hours > 0 ? hours + "時間" : "")}${(minutes > 0 ? minutes + "分" : "")}${(seconds > 0 ? seconds + "秒" : "")}です`;
-        }
-    }
-
-    getSWState() {
-        return this.swstate
-    }
-
-    go() {
-        if (this.swstate === SWState.RUNNING || this.swstate === SWState.FINISHED) {
-            return;
-        }
-        if (this.swstate === SWState.BEFORE_START) {
-            const synthes = new SpeechSynthesisUtterance(`${this.title}です`);
-            synthes.lang = "ja-JP";
-            speechSynthesis.speak(synthes);
-        }
-        this.started = new Date();
-        this.timeoutIds.push(setTimeout(() => this.tick_(), 100));
-        this.swstate = SWState.RUNNING;
-    }
-
-    pause() {
-        if (this.swstate === SWState.SUSPEND || this.swstate === SWState.FINISHED) {
-            return;
-        }
-        this.mseconds = this.left_();
-        this.started = undefined;
-        for (let id of this.timeoutIds) {
-            clearTimeout(id);
-        }
-        this.swstate = SWState.SUSPEND;
-    }
-
-    left_() {
-        return this.started ? (this.mseconds - (new Date() - this.started)) : this.mseconds;
-    }
-
-    tick_() {
-        if (this.left_() / 1000 < this.checkpoint[0]) {
-            const synthes = new SpeechSynthesisUtterance(this.toLeftString_());
-            synthes.lang = "ja-JP";
-            synthes.rate = 1.2;
-            speechSynthesis.speak(synthes);
-            this.checkpoint.shift();
-        }
-        this.timeoutIds.push(setTimeout(() => {
-            const duration = Date.now() - this.started;
-            this.onTick();
-            if (duration >= this.mseconds) {
-                this.onFinish();
-                this.swstate = SWState.FINISHED;
-            } else {
-                this.tick_();
-            }
-        }, 90))
-    }
-}
 
 class GameTimer extends Component {
 
@@ -134,42 +34,28 @@ class GameTimer extends Component {
     }
 
     componentWillMount() {
-        this.resetTimer(this.props.store.menuIndex);
-        this.makeStopWatch(this.props.store);
+        this.onChange(this.props.store.menuIndex);
     }
 
-
-    makeStopWatch(store) {
-        this.sw = new StopWatch(store.getTitle(),
-            store.getDuration(),
-            () => {
-                this.props.updateStore(this.props.store.setTime(this.sw.toString()));
-            },
-            () => {
-                if (this.props.store.timerIndex + 1 < this.props.store.getTimerList().size) {
-                    this.props.updateStore(this.props.store.setTimerIndex(this.props.store.timerIndex + 1));
-                    this.makeStopWatch(this.props.store);
-                    this.sw.go();
-                } else {
-                    const synthes = new SpeechSynthesisUtterance("終了です。");
-                    synthes.lang = "ja-JP";
-                    speechSynthesis.speak(synthes);
-                    this.props.updateStore(this.props.store.setFinish(true));
-                }
+    onChange(menuIndex) {
+        const onTick = () => {
+            this.props.updateStore(this.props.store.setTime(this.props.store.sw.toString()));
+        };
+        const onFinish = () => {
+            if (this.props.store.timerIndex + 1 < this.props.store.getTimerList().size) {
+                const store = this.props.store.setTimerIndex(this.props.store.timerIndex + 1).setSw(onTick, onFinish);
+                this.props.updateStore(store);
+                store.sw.go();
+            } else {
+                const synthes = new SpeechSynthesisUtterance("終了です。");
+                synthes.lang = "ja-JP";
+                speechSynthesis.speak(synthes);
+                this.props.updateStore(this.props.store.setFinish(true));
             }
-        );
-    }
-
-    resetTimer(menuIndex) {
-        const store = this.props.store.setMenuIndex(menuIndex);
-        this.makeStopWatch(store);
-        this.props.updateStore(store.setTime(this.sw.toString()));
-    }
-
-    onChange(value) {
-        this.sw.pause();
+        };
+        this.props.store.sw.pause();
         this.noSleep.disable();
-        this.resetTimer(value);
+        this.props.updateStore(this.props.store.setMenuIndex(menuIndex).setSw(onTick, onFinish));
     }
 
     render() {
@@ -195,7 +81,7 @@ class GameTimer extends Component {
                     }
                     <Divider/>
                     <div className="time-display" data-is-finish={this.props.store.finish}>
-                        <code>{this.props.store.time} </code></div>
+                        <code>{this.props.store.getTime()} </code></div>
                     <Divider/>
                     <ListItem disabled={true}>
                         <div>
@@ -205,17 +91,17 @@ class GameTimer extends Component {
                                                   icon={this.props.store.running ? <AvPause/> : <AvPlayArrow/> }
                                                   onClick={() => {
                                                       this.noSleep.enable();
-                                                      if ([SWState.BEFORE_START, SWState.SUSPEND].includes(this.sw.getSWState())) {
-                                                          this.sw.go();
+                                                      if ([SWState.BEFORE_START, SWState.SUSPEND].includes(this.props.store.sw.getSWState())) {
+                                                          this.props.store.sw.go();
                                                           this.props.updateStore(this.props.store.setLabel("Pause").setRunning(true));
                                                       } else {
-                                                          this.sw.pause();
+                                                          this.props.store.sw.pause();
                                                           this.props.updateStore(this.props.store.setLabel("Go").setRunning(false));
                                                       }
                                                   }}/>
                             }
                             <RaisedButton label="Reset" secondary={true} onClick={() => {
-                                this.resetTimer(this.props.store.menuIndex);
+                                this.onChange(this.props.store.menuIndex);
                             }}/>
                         </div>
                     </ListItem>
