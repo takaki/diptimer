@@ -46,10 +46,6 @@ export class StopWatch {
         }
     }
 
-    getSWState() {
-        return this.swstate
-    }
-
     go() {
         if (this.swstate === SWState.RUNNING || this.swstate === SWState.FINISHED) {
             return;
@@ -101,7 +97,7 @@ export class StopWatch {
     }
 
     isRun() {
-        return [SWState.BEFORE_START, SWState.SUSPEND].includes(this.getSWState())
+        return [SWState.BEFORE_START, SWState.SUSPEND].includes(this.swstate)
     }
 }
 
