@@ -199,9 +199,14 @@ class DataStore extends Record({
         return this.sw.toString();
     }
 
+    getNames() {
+        return DataStore.timerMenu.toKeyedSeq().map(e => e.get('name'));
+    }
+
     isTimerLeft() {
         return this.timerIndex + 1 < this.getTimerList().size
     }
+
     nextTimer() {
         return this.setTimerIndex(this.timerIndex + 1);
     }

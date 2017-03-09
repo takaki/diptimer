@@ -56,8 +56,8 @@ class GameTimer extends Component {
             <div>
                 <DropDownMenu value={this.props.store.menuIndex}
                               onChange={(event, index, value) => this.onChange(value)}>
-                    {DataStore.timerMenu.toKeyedSeq().map((e, i) =>
-                        <MenuItem value={i} key={i} primaryText={e.get('name')}/>).toArray()}
+                    {this.props.store.getNames().toKeyedSeq().map((n, i) =>
+                        <MenuItem value={i} key={i} primaryText={n}/>).toArray()}
                 </DropDownMenu>
                 <List>
                     {this.props.store.getTimerList().toKeyedSeq().map((e, i) =>
@@ -78,14 +78,13 @@ class GameTimer extends Component {
                     <Divider/>
                     <ListItem disabled={true}>
                         <div>
-                            {
-                                this.props.store.finish ? "" :
-                                    <RaisedButton label={this.props.store.label}
-                                                  icon={this.props.store.running ? <AvPause/> : <AvPlayArrow/> }
-                                                  onClick={() => {
-                                                      this.props.store.noSleep.enable();
-                                                      this.props.updateStore(this.props.store.toggleSwitch());
-                                                  }}/>
+                            {this.props.store.finish ? "" :
+                                <RaisedButton label={this.props.store.label}
+                                              icon={this.props.store.running ? <AvPause/> : <AvPlayArrow/> }
+                                              onClick={() => {
+                                                  this.props.store.noSleep.enable();
+                                                  this.props.updateStore(this.props.store.toggleSwitch());
+                                              }}/>
                             }
                             <RaisedButton label="Reset" secondary={true} onClick={() => {
                                 this.onChange(this.props.store.menuIndex);
@@ -100,7 +99,6 @@ class GameTimer extends Component {
 }
 
 const initialState = new DataStore();
-
 
 const updateStore = createAction("UPDATE_MODEL");
 
