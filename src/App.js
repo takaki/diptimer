@@ -12,7 +12,7 @@ import Divider from "material-ui/Divider";
 import MenuItem from "material-ui/MenuItem";
 import DropDownMenu from "material-ui/DropDownMenu";
 import {createStore} from "redux";
-import {handleActions, createAction} from "redux-actions";
+import {createAction, handleActions} from "redux-actions";
 import {connect, Provider} from "react-redux";
 import DataStore from "./model";
 injectTapEventPlugin();
@@ -75,22 +75,20 @@ class GameTimer extends Component {
                     <Divider/>
                     <div className="time-display" data-is-finish={this.props.store.finish}>
                         <code>{this.props.store.getTime()} </code></div>
-                    <Divider/>
-                    <ListItem disabled={true}>
-                        <div>
-                            {this.props.store.finish ? "" :
-                                <RaisedButton label={this.props.store.label}
-                                              icon={this.props.store.running ? <AvPause/> : <AvPlayArrow/> }
-                                              onClick={() => {
-                                                  this.props.store.noSleep.enable();
-                                                  this.props.updateStore(this.props.store.toggleSwitch());
-                                              }}/>
-                            }
-                            <RaisedButton label="Reset" secondary={true} onClick={() => {
-                                this.onChange(this.props.store.menuIndex);
-                            }}/>
-                        </div>
-                    </ListItem>
+                    <div className="control-buttons">
+                        {this.props.store.finish ? "" :
+                            <RaisedButton label={this.props.store.label}
+                                          className="button"
+                                          icon={this.props.store.running ? <AvPause/> : <AvPlayArrow/> }
+                                          onClick={() => {
+                                              this.props.store.noSleep.enable();
+                                              this.props.updateStore(this.props.store.toggleSwitch());
+                                          }}/>
+                        }
+                        <RaisedButton className="button" label="Reset" secondary={true} onClick={() => {
+                            this.onChange(this.props.store.menuIndex);
+                        }}/>
+                    </div>
                     <Divider />
                 </List>
             </div>
