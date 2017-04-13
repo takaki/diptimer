@@ -89,7 +89,6 @@ class GameTimer extends Component {
                             this.onChange(this.props.store.menuIndex);
                         }}/>
                     </div>
-                    <Divider />
                 </List>
             </div>
         )
