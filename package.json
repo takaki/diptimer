@@ -2,28 +2,35 @@
   "name": "diptimer",
   "version": "0.1.0",
   "private": true,
-  "devDependencies": {
-    "gh-pages": "^0.12.0",
-    "react-scripts": "^0.9.5"
-  },
   "homepage": "https://takaki.github.io/diptimer/",
+  "devDependencies": {
+    "@types/jest": "^19.2.2",
+    "gh-pages": "^0.12.0",
+    "react-scripts-ts": "^1.2.0"
+  },
   "dependencies": {
-    "enumify": "^1.0.4",
+    "@types/material-ui": "^0.16.60",
+    "@types/react": "^15.0.21",
+    "@types/react-dom": "^0.14.23",
+    "@types/react-redux": "^4.4.38",
+    "@types/react-tap-event-plugin": "^0.0.30",
+    "@types/redux-actions": "^1.2.3",
     "immutable": "^3.8.1",
-    "material-ui": "^0.17.1",
+    "material-ui": "^0.17.4",
+    "monapt": "^0.7.1",
     "nosleep.js": "^0.5.1",
-    "react": "^15.4.2",
-    "react-dom": "^15.4.2",
-    "react-redux": "^5.0.3",
+    "react": "^15.5.4",
+    "react-dom": "^15.5.4",
+    "react-redux": "^5.0.4",
     "react-tap-event-plugin": "^2.0.1",
     "redux": "^3.6.0",
-    "redux-actions": "^2.0.1"
+    "redux-actions": "^2.0.2"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject",
+    "start": "react-scripts-ts start",
+    "build": "react-scripts-ts build",
+    "test": "react-scripts-ts test --env=jsdom",
+    "eject": "react-scripts-ts eject",
     "predeploy": "yarn run build",
     "deploy": "gh-pages -d build"
   }
