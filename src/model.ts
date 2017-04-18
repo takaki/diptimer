@@ -1,5 +1,5 @@
-import {List, Record, Range} from 'immutable';
-import {Option, None} from 'monapt';
+import {List, Range, Record} from 'immutable';
+import {None, Option} from 'monapt';
 import NoSleep from './nosleep';
 import printf = require('printf');
 
@@ -44,7 +44,7 @@ export class StopWatch {
         const minutes = Math.floor((totalSeconds % 3600) / 60);
         const seconds = Math.floor(totalSeconds % 60);
 
-        return printf('02d:%02d:%02d', hours, minutes, seconds);
+        return printf('%02d:%02d:%02d', hours, minutes, seconds);
     }
 
     toLeftString_(): string {
@@ -84,9 +84,7 @@ export class StopWatch {
         }
         this.mseconds = this.left_();
         this.started = None;
-        for (let id of this.timeoutIds) {
-            clearTimeout(id);
-        }
+        this.timeoutIds.forEach(id => clearTimeout(id));
         this.swstate = SWState.SUSPEND;
     }
 
@@ -116,7 +114,7 @@ export class StopWatch {
             90));
     }
 
-    isRun() {
+    canRun() {
         return this.swstate === SWState.BEFORE_START || this.swstate === SWState.SUSPEND;
     }
 }
@@ -257,7 +255,7 @@ class DataStore extends Record({
     }
 
     toggleSwitch() {
-        if (this.sw.isRun()) {
+        if (this.sw.canRun()) {
             this.sw.go();
             return this.setLabel('Pause').setRunning(true);
         } else {
