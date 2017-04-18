@@ -74,7 +74,7 @@ export class StopWatch {
             speechSynthesis.speak(synthes);
         }
         this.started = Option(new Date());
-        this.timeoutIds.push(setTimeout(() => this.tick_(), 100));
+        this.timeoutIds.push(window.setTimeout(() => this.tick_(), 100));
         this.swstate = SWState.RUNNING;
     }
 
@@ -103,7 +103,7 @@ export class StopWatch {
             speechSynthesis.speak(synthes);
             this.checkpoint.shift();
         }
-        this.timeoutIds.push(setTimeout(
+        this.timeoutIds.push(window.setTimeout(
             () => {
                 this.onTick();
                 if (this.left_() <= 0) {

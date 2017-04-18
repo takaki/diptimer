@@ -17,6 +17,7 @@
     "@types/react-tap-event-plugin": "^0.0.30",
     "@types/redux-actions": "^1.2.3",
     "immutable": "^3.8.1",
+    "install": "^0.8.8",
     "material-ui": "^0.17.4",
     "monapt": "^0.7.1",
     "nosleep.js": "^0.5.1",
