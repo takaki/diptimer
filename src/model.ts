@@ -1,6 +1,7 @@
 import {List, Record, Range} from 'immutable';
 import {Option, None} from 'monapt';
 import NoSleep from './nosleep';
+import printf = require('printf');
 
 export enum SWState {
     BEFORE_START, RUNNING, SUSPEND, FINISHED
@@ -10,7 +11,7 @@ export class StopWatch {
     title: string;
     mseconds: number;
     timeoutIds: Array<number>;
-    checkpoint: Array<number>;
+    checkpoint: List<number>;
     onTick: () => void;
     onFinish: () => void;
     swstate: SWState;
@@ -29,24 +30,21 @@ export class StopWatch {
         this.mseconds = seconds * 1000;
         this.timeoutIds = [];
         this.started = None;
-        this.checkpoint = [14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1].map(i => i * 60).concat(
-            [50, 40, 30, 20, 10, 5, 4, 3, 2, 1]).filter(element => element < seconds);
-        // this.checkpoint = [3 * 60, 2 * 60, 60, 30, 20, 10, 1].filter(element => element < seconds);
+        this.checkpoint = Range(1, 6).concat(Range(10, 60, 10)).concat(Range(60, 15 * 60, 60))
+            .filter((element: number) => element < seconds).reverse().toList();
         this.swstate = SWState.BEFORE_START;
     }
 
     toString(): string {
         const totalSeconds = Math.ceil(this.left_() / 1000);
         if (totalSeconds <= 0) {
-            return `00:00:00`;
+            return '00:00:00';
         }
         const hours = Math.floor(totalSeconds / 3600);
         const minutes = Math.floor((totalSeconds % 3600) / 60);
         const seconds = Math.floor(totalSeconds % 60);
 
-        return `${(hours < 10 ? '0' + hours : hours )}:${
-            (minutes < 10 ? '0' + minutes : minutes)}:${
-            (seconds < 10 ? '0' + seconds : seconds)}`;
+        return printf('02d:%02d:%02d', hours, minutes, seconds);
     }
 
     toLeftString_(): string {
@@ -57,9 +55,10 @@ export class StopWatch {
             const hours = Math.floor(totalSeconds / 3600);
             const minutes = Math.floor((totalSeconds % 3600) / 60);
             const seconds = Math.floor(totalSeconds % 60);
-            return `残り${(hours > 0 ? hours + '時間' : '')}${
-                (minutes > 0 ? minutes + '分' : '')}${
-                (seconds > 0 ? seconds + '秒' : '')}です`;
+            return `残り${(hours > 0 ? hours + '時間' : '')}
+        ${(minutes > 0 ? minutes + '分' : '')}
+        ${(seconds > 0 ? seconds + '秒' : '')}
+        です`;
         }
     }
 
@@ -68,7 +67,9 @@ export class StopWatch {
             return;
         }
         if (this.swstate === SWState.BEFORE_START) {
-            const synthes = new SpeechSynthesisUtterance(`${this.title}です`);
+            const synthes = new SpeechSynthesisUtterance(`
+        ${this.title}
+        です`);
             synthes.lang = 'ja-JP';
             speechSynthesis.speak(synthes);
         }
@@ -168,9 +169,13 @@ class DataStore extends Record({
                 new TimerEntry({title: 'A', duration: 1}))
         })).concat(
         Range(1, 16).map((i: number) => new MenuEntry({
-            name: `${i}分`,
+            name: `
+        ${i}
+        分`,
             timers: List.of(new TimerEntry({
-                title: `${i}分`, duration: i * 60
+                title: `
+        ${i}
+        分`, duration: i * 60
             }))
         })));
 

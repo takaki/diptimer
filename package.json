@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@types/material-ui": "^0.16.60",
+    "@types/printf": "^0.2.0",
     "@types/react": "^15.0.21",
     "@types/react-dom": "^0.14.23",
     "@types/react-redux": "^4.4.38",
@@ -19,6 +20,7 @@
     "material-ui": "^0.17.4",
     "monapt": "^0.7.1",
     "nosleep.js": "^0.5.1",
+    "printf": "^0.2.5",
     "react": "^15.5.4",
     "react-dom": "^15.5.4",
     "react-redux": "^5.0.4",
