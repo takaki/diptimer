@@ -53,10 +53,12 @@
 
 .control-buttons {
     display: inline-block;
+    width: 200px;
 }
 
 .button {
     display: inline-block;
+    /*width: 90px;*/
 }
 
 .adsense {
