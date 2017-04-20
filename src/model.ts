@@ -1,7 +1,6 @@
 import {List, Range, Record} from 'immutable';
 import {None, Option} from 'monapt';
 import NoSleep from './nosleep';
-import printf = require('printf');
 
 export enum SWState {
     BEFORE_START, RUNNING, SUSPEND, FINISHED
@@ -12,16 +11,16 @@ export class StopWatch {
     mseconds: number;
     timeoutIds: Array<number>;
     checkpoint: List<number>;
-    onTick: () => void;
-    onFinish: () => void;
+    onTick: (sw: StopWatch) => void;
+    onFinish: (sw: StopWatch) => void;
     swstate: SWState;
     started: Option<Date>;
 
     constructor(title: string, seconds: number,
-                onTick: () => void = () => {
+                onTick: (sw: StopWatch) => void = () => {
                     return;
                 },
-                onFinish: () => void = () => {
+                onFinish: (sw: StopWatch) => void = () => {
                     return;
                 }) {
         this.title = title;
@@ -33,18 +32,6 @@ export class StopWatch {
         this.checkpoint = Range(1, 6).concat(Range(10, 60, 10)).concat(Range(60, 15 * 60, 60))
             .filter((element: number) => element < seconds).reverse().toList();
         this.swstate = SWState.BEFORE_START;
-    }
-
-    toString(): string {
-        const totalSeconds = Math.ceil(this.left_() / 1000);
-        if (totalSeconds <= 0) {
-            return '00:00:00';
-        }
-        const hours = Math.floor(totalSeconds / 3600);
-        const minutes = Math.floor((totalSeconds % 3600) / 60);
-        const seconds = Math.floor(totalSeconds % 60);
-
-        return printf('%02d:%02d:%02d', hours, minutes, seconds);
     }
 
     toLeftString_(): string {
@@ -67,9 +54,7 @@ export class StopWatch {
             return;
         }
         if (this.swstate === SWState.BEFORE_START) {
-            const synthes = new SpeechSynthesisUtterance(`
-        ${this.title}
-        です`);
+            const synthes = new SpeechSynthesisUtterance(`${this.title}です`);
             synthes.lang = 'ja-JP';
             speechSynthesis.speak(synthes);
         }
@@ -103,9 +88,9 @@ export class StopWatch {
         }
         this.timeoutIds.push(window.setTimeout(
             () => {
-                this.onTick();
+                this.onTick(this);
                 if (this.left_() <= 0) {
-                    this.onFinish();
+                    this.onFinish(this);
                     this.swstate = SWState.FINISHED;
                 } else {
                     this.tick_();
@@ -210,7 +195,7 @@ class DataStore extends Record({
         return new DataStore(this.set('finish', b));
     }
 
-    setSw(onTick: () => void, onFinish: () => void) {
+    setSw(onTick: (sw: StopWatch) => void, onFinish: (sw: StopWatch) => void) {
         return new DataStore(this.set('sw', new StopWatch(this.getTitle(), this.getDuration(), onTick, onFinish)));
     }
 
@@ -238,8 +223,8 @@ class DataStore extends Record({
         return this.getTimer().get('duration');
     }
 
-    getTime() {
-        return this.sw.toString();
+    getTime(): number {
+        return this.sw.left_();
     }
 
     getNames() {

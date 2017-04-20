@@ -7,8 +7,9 @@ import {AvPause, AvPlayArrow, ImageTimer, ImageTimerOff} from 'material-ui/svg-i
 import {createStore} from 'redux';
 import {createAction, handleActions} from 'redux-actions';
 import {connect, Dispatch, Provider} from 'react-redux';
-import DataStore, {TimerEntry} from './model';
+import DataStore, {StopWatch, TimerEntry} from './model';
 import Component = React.Component;
+import printf = require('printf');
 
 injectTapEventPlugin();
 
@@ -25,15 +26,25 @@ class GameTimer extends Component<GameTimerProps, undefined> {
         return `${m}:${(s < 10 ? '0' + s : s)}`;
     }
 
+    timestr(leftTime: number): string {
+        if (leftTime <= 0) {
+            return '00:00:00';
+        }
+        const hours = Math.floor(leftTime / 3600);
+        const minutes = Math.floor((leftTime % 3600) / 60);
+        const seconds = Math.floor(leftTime % 60);
+        return printf('%02d:%02d:%02d', hours, minutes, seconds);
+    }
+
     componentWillMount() {
         this.onChange(this.props.store.menuIndex);
     }
 
     onChange(menuIndex: number) {
-        const onTick = () => {
-            this.props.updateStore(this.props.store.setTime(this.props.store.sw.toString()));
+        const onTick = (sw: StopWatch) => {
+            this.props.updateStore(this.props.store.setTime(this.timestr(sw.left_() / 1000)));
         };
-        const onFinish = () => {
+        const onFinish = (sw: StopWatch) => {
             if (this.props.store.isTimerLeft()) {
                 const store = this.props.store.nextTimer().setSw(onTick, onFinish);
                 this.props.updateStore(store);
@@ -72,7 +83,7 @@ class GameTimer extends Component<GameTimerProps, undefined> {
                         )).toArray()}
                         <Divider/>
                         <div className="time-display" data-is-finish={this.props.store.finish}>
-                            <code>{this.props.store.getTime()} </code></div>
+                            <code>{this.timestr(this.props.store.getTime() / 1000)} </code></div>
                         <div className="control-buttons">
                             {this.props.store.finish ? '' : (
                                 <RaisedButton label={this.props.store.label}
