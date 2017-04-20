@@ -1,5 +1,6 @@
 import {List, Range, Record} from 'immutable';
 import {None, Option} from 'monapt';
+import printf = require('printf');
 
 export enum SWState {
     BEFORE_START, RUNNING, SUSPEND, FINISHED
@@ -86,7 +87,7 @@ export class TimerEntry extends Record({
     duration: 0
 }) {
     title: string;
-    durataion: number;
+    duration: number;
 }
 class MenuEntry extends Record({
     name: '',
@@ -127,13 +128,9 @@ class DataStore extends Record({
                 new TimerEntry({title: 'A', duration: 1}))
         })).concat(
         Range(1, 16).map((i: number) => new MenuEntry({
-            name: `
-        ${i}
-        分`,
+            name: printf('%d分', i),
             timers: List.of(new TimerEntry({
-                title: `
-        ${i}
-        分`, duration: i * 60
+                title: printf('%d分', i), duration: i * 60
             }))
         })));
 

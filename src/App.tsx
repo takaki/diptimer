@@ -24,9 +24,7 @@ class GameTimer extends Component<GameTimerProps, undefined> {
     sw: StopWatch;
 
     static timeformat_(d: number) {
-        const m = Math.floor(d / 60);
-        const s = d % 60;
-        return `${m}:${(s < 10 ? '0' + s : s)}`;
+        return printf('%d:%02d', Math.floor(d / 60), d % 60);
     }
 
     constructor() {
@@ -109,7 +107,9 @@ class GameTimer extends Component<GameTimerProps, undefined> {
                             <ListItem
                                 disabled={true}
                                 className="timer-list"
-                                primaryText={`${e.get('title')} (${GameTimer.timeformat_(e.get('duration'))})`}
+                                primaryText={printf(
+                                    '%s %d:%02d', e.title, Math.floor(e.duration / 60),
+                                    e.duration % 60)}
                                 key={i}
                                 data-is-current={i === this.props.store.timerIndex}
                                 rightIcon={i === this.props.store.timerIndex ? <ImageTimer/> :
