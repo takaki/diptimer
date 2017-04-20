@@ -21,14 +21,18 @@ interface GameTimerProps {
 
 class GameTimer extends Component<GameTimerProps, undefined> {
     noSleep: NoSleep;
+    sw: StopWatch;
+
     static timeformat_(d: number) {
         const m = Math.floor(d / 60);
         const s = d % 60;
         return `${m}:${(s < 10 ? '0' + s : s)}`;
     }
+
     constructor() {
         super();
         this.noSleep = new NoSleep();
+        this.sw = new StopWatch('dummy', 0);
     }
 
     timestr(leftTime: number): string {
@@ -62,22 +66,21 @@ class GameTimer extends Component<GameTimerProps, undefined> {
 
     onChange(menuIndex: number) {
         const onTick = (sw: StopWatch) => {
-            const leftmsec = sw.leftmsec();
-            if (leftmsec / 1000 < sw.checkpoint[0]) {
+            if (sw.leftmsec() / 1000 < sw.checkpoint[0]) {
                 const synthes = new SpeechSynthesisUtterance(this.toLeftString_(sw.leftmsec()));
                 synthes.lang = 'ja-JP';
                 synthes.rate = 1.2;
                 speechSynthesis.speak(synthes);
                 sw.checkpoint.shift();
             }
-
             this.props.updateStore(this.props.store.setTime(this.timestr(sw.leftmsec() / 1000)));
         };
         const onFinish = (sw: StopWatch) => {
             if (this.props.store.isTimerLeft()) {
-                const store = this.props.store.nextTimer().setSw(onTick, onFinish);
+                const store = this.props.store.nextTimer();
+                this.sw = new StopWatch(store.getTitle(), store.getDuration(), onTick, onFinish);
                 this.props.updateStore(store);
-                store.sw.go();
+                this.sw.go();
             } else {
                 const synthes = new SpeechSynthesisUtterance('終了です。');
                 synthes.lang = 'ja-JP';
@@ -85,9 +88,11 @@ class GameTimer extends Component<GameTimerProps, undefined> {
                 this.props.updateStore(this.props.store.setFinish(true));
             }
         };
-        this.props.store.sw.pause();
+        this.sw.pause();
         this.noSleep.disable();
-        this.props.updateStore(this.props.store.setMenuIndex(menuIndex).setSw(onTick, onFinish));
+        const store = this.props.store.setMenuIndex(menuIndex);
+        this.sw = new StopWatch(store.getTitle(), store.getDuration(), onTick, onFinish);
+        this.props.updateStore(store);
     }
 
     render() {
@@ -112,7 +117,7 @@ class GameTimer extends Component<GameTimerProps, undefined> {
                         )).toArray()}
                         <Divider/>
                         <div className="time-display" data-is-finish={this.props.store.finish}>
-                            <code>{this.timestr(this.props.store.getTime() / 1000)} </code></div>
+                            <code>{this.timestr(this.sw.leftmsec() / 1000)} </code></div>
                         <div className="control-buttons">
                             {this.props.store.finish ? '' : (
                                 <RaisedButton label={this.props.store.label}
@@ -121,7 +126,15 @@ class GameTimer extends Component<GameTimerProps, undefined> {
                                                   <AvPlayArrow/> }
                                               onClick={() => {
                                                   this.noSleep.enable();
-                                                  this.props.updateStore(this.props.store.toggleSwitch());
+                                                  if (this.sw.canRun()) {
+                                                      this.sw.go();
+                                                      this.props.updateStore(this.props.store.setLabel('Pause')
+                                                          .setRunning(true));
+                                                  } else {
+                                                      this.sw.pause();
+                                                      this.props.updateStore(this.props.store.setLabel('Go')
+                                                          .setRunning(false));
+                                                  }
                                               }}/>
                             )}
                             <RaisedButton className="button" label="Reset" secondary={true} onClick={() => {

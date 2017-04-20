@@ -9,7 +9,7 @@ export class StopWatch {
     title: string;
     mseconds: number;
     timeoutIds: Array<number>;
-    checkpoint: List<number>;
+    checkpoint: Array<number>;
     onTick: (sw: StopWatch) => void;
     onFinish: (sw: StopWatch) => void;
     swstate: SWState;
@@ -29,7 +29,7 @@ export class StopWatch {
         this.timeoutIds = [];
         this.started = None;
         this.checkpoint = Range(1, 6).concat(Range(10, 60, 10)).concat(Range(60, 15 * 60, 60))
-            .filter((element: number) => element < seconds).reverse().toList();
+            .filter((element: number) => element < seconds).reverse().toArray();
         this.swstate = SWState.BEFORE_START;
     }
 
@@ -103,7 +103,6 @@ class DataStore extends Record({
     label: 'Go',
     running: false,
     finish: false,
-    sw: new StopWatch('dummy', 0),
 }) {
     static timerMenu = List.of(
         new MenuEntry({
@@ -144,7 +143,6 @@ class DataStore extends Record({
     label: string;
     running: boolean;
     finish: boolean;
-    sw: StopWatch;
 
     setMenuIndex(i: number) {
         return new DataStore(this.set('menuIndex', i)).setTimerIndex(0).setFinish(false).setRunning(false);
@@ -168,10 +166,6 @@ class DataStore extends Record({
 
     setFinish(b: boolean) {
         return new DataStore(this.set('finish', b));
-    }
-
-    setSw(onTick: (sw: StopWatch) => void, onFinish: (sw: StopWatch) => void) {
-        return new DataStore(this.set('sw', new StopWatch(this.getTitle(), this.getDuration(), onTick, onFinish)));
     }
 
     getCurrentMenu() {
@@ -198,10 +192,6 @@ class DataStore extends Record({
         return this.getTimer().get('duration');
     }
 
-    getTime(): number {
-        return this.sw.leftmsec();
-    }
-
     getNames() {
         return DataStore.timerMenu.map((e: MenuEntry) => e.name);
     }
@@ -214,16 +204,6 @@ class DataStore extends Record({
         return this.setTimerIndex(this.timerIndex + 1);
     }
 
-    toggleSwitch() {
-        if (this.sw.canRun()) {
-            this.sw.go();
-            return this.setLabel('Pause').setRunning(true);
-        } else {
-            this.sw.pause();
-            return this.setLabel('Go').setRunning(false);
-        }
-
-    }
 }
 
 export default  DataStore;
