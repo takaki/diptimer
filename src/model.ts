@@ -34,21 +34,6 @@ export class StopWatch {
         this.swstate = SWState.BEFORE_START;
     }
 
-    toLeftString_(): string {
-        const totalSeconds = Math.ceil(this.left_() / 1000);
-        if (totalSeconds < 10) {
-            return totalSeconds.toString();
-        } else {
-            const hours = Math.floor(totalSeconds / 3600);
-            const minutes = Math.floor((totalSeconds % 3600) / 60);
-            const seconds = Math.floor(totalSeconds % 60);
-            return `残り${(hours > 0 ? hours + '時間' : '')}
-        ${(minutes > 0 ? minutes + '分' : '')}
-        ${(seconds > 0 ? seconds + '秒' : '')}
-        です`;
-        }
-    }
-
     go() {
         if (this.swstate === SWState.RUNNING || this.swstate === SWState.FINISHED) {
             return;
@@ -67,29 +52,22 @@ export class StopWatch {
         if (this.swstate === SWState.SUSPEND || this.swstate === SWState.FINISHED) {
             return;
         }
-        this.mseconds = this.left_();
+        this.mseconds = this.leftmsec();
         this.started = None;
         this.timeoutIds.forEach(id => clearTimeout(id));
         this.swstate = SWState.SUSPEND;
     }
 
-    left_(): number {
+    leftmsec(): number {
         return this.started.map((started: Date) =>
             (this.mseconds - ((new Date()).getTime() - started.getTime()))).getOrElse(() => this.mseconds);
     }
 
     tick_() {
-        if (this.left_() / 1000 < this.checkpoint[0]) {
-            const synthes = new SpeechSynthesisUtterance(this.toLeftString_());
-            synthes.lang = 'ja-JP';
-            synthes.rate = 1.2;
-            speechSynthesis.speak(synthes);
-            this.checkpoint.shift();
-        }
         this.timeoutIds.push(window.setTimeout(
             () => {
                 this.onTick(this);
-                if (this.left_() <= 0) {
+                if (this.leftmsec() <= 0) {
                     this.onFinish(this);
                     this.swstate = SWState.FINISHED;
                 } else {
@@ -224,7 +202,7 @@ class DataStore extends Record({
     }
 
     getTime(): number {
-        return this.sw.left_();
+        return this.sw.leftmsec();
     }
 
     getNames() {

@@ -40,9 +40,33 @@ class GameTimer extends Component<GameTimerProps, undefined> {
         this.onChange(this.props.store.menuIndex);
     }
 
+    toLeftString_(left: number): string {
+        const totalSeconds = Math.ceil(left / 1000);
+        if (totalSeconds < 10) {
+            return totalSeconds.toString();
+        } else {
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = Math.floor(totalSeconds % 60);
+            return `残り${(hours > 0 ? hours + '時間' : '')}
+        ${(minutes > 0 ? minutes + '分' : '')}
+        ${(seconds > 0 ? seconds + '秒' : '')}
+        です`;
+        }
+    }
+
     onChange(menuIndex: number) {
         const onTick = (sw: StopWatch) => {
-            this.props.updateStore(this.props.store.setTime(this.timestr(sw.left_() / 1000)));
+            const leftmsec = sw.leftmsec();
+            if (leftmsec / 1000 < sw.checkpoint[0]) {
+                const synthes = new SpeechSynthesisUtterance(this.toLeftString_(sw.leftmsec()));
+                synthes.lang = 'ja-JP';
+                synthes.rate = 1.2;
+                speechSynthesis.speak(synthes);
+                sw.checkpoint.shift();
+            }
+
+            this.props.updateStore(this.props.store.setTime(this.timestr(sw.leftmsec() / 1000)));
         };
         const onFinish = (sw: StopWatch) => {
             if (this.props.store.isTimerLeft()) {
