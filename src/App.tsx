@@ -8,6 +8,7 @@ import {createStore} from 'redux';
 import {createAction, handleActions} from 'redux-actions';
 import {connect, Dispatch, Provider} from 'react-redux';
 import DataStore, {StopWatch, TimerEntry} from './model';
+import NoSleep from './nosleep';
 import Component = React.Component;
 import printf = require('printf');
 
@@ -19,11 +20,15 @@ interface GameTimerProps {
 }
 
 class GameTimer extends Component<GameTimerProps, undefined> {
-
+    noSleep: NoSleep;
     static timeformat_(d: number) {
         const m = Math.floor(d / 60);
         const s = d % 60;
         return `${m}:${(s < 10 ? '0' + s : s)}`;
+    }
+    constructor() {
+        super();
+        this.noSleep = new NoSleep();
     }
 
     timestr(leftTime: number): string {
@@ -81,7 +86,7 @@ class GameTimer extends Component<GameTimerProps, undefined> {
             }
         };
         this.props.store.sw.pause();
-        this.props.store.noSleep.disable();
+        this.noSleep.disable();
         this.props.updateStore(this.props.store.setMenuIndex(menuIndex).setSw(onTick, onFinish));
     }
 
@@ -115,7 +120,7 @@ class GameTimer extends Component<GameTimerProps, undefined> {
                                               icon={this.props.store.running ? <AvPause/> :
                                                   <AvPlayArrow/> }
                                               onClick={() => {
-                                                  this.props.store.noSleep.enable();
+                                                  this.noSleep.enable();
                                                   this.props.updateStore(this.props.store.toggleSwitch());
                                               }}/>
                             )}

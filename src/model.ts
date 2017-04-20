@@ -1,6 +1,5 @@
 import {List, Range, Record} from 'immutable';
 import {None, Option} from 'monapt';
-import NoSleep from './nosleep';
 
 export enum SWState {
     BEFORE_START, RUNNING, SUSPEND, FINISHED
@@ -104,7 +103,6 @@ class DataStore extends Record({
     label: 'Go',
     running: false,
     finish: false,
-    noSleep: new NoSleep(),
     sw: new StopWatch('dummy', 0),
 }) {
     static timerMenu = List.of(
@@ -146,7 +144,6 @@ class DataStore extends Record({
     label: string;
     running: boolean;
     finish: boolean;
-    noSleep: NoSleep;
     sw: StopWatch;
 
     setMenuIndex(i: number) {
