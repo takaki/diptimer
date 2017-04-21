@@ -97,7 +97,7 @@ class MenuEntry extends Record({
     timers: List<TimerEntry>;
 }
 
-class DataStore extends Record({
+export class DataStore extends Record({
     menuIndex: 0,
     timerIndex: 0,
     time: '',
@@ -202,5 +202,3 @@ class DataStore extends Record({
     }
 
 }
-
-export default  DataStore;

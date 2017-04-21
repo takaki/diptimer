@@ -7,7 +7,7 @@ import {AvPause, AvPlayArrow, ImageTimer, ImageTimerOff} from 'material-ui/svg-i
 import {createStore} from 'redux';
 import {createAction, handleActions} from 'redux-actions';
 import {connect, Dispatch, Provider} from 'react-redux';
-import DataStore, {StopWatch, TimerEntry} from './model';
+import {DataStore, StopWatch, TimerEntry} from './model';
 import NoSleep from './nosleep';
 import Component = React.Component;
 import printf = require('printf');
