@@ -37,10 +37,10 @@ class GameTimer extends Component<GameTimerProps, undefined> {
         if (leftTime <= 0) {
             return '00:00:00';
         }
-        const hours = Math.floor(leftTime / 3600);
-        const minutes = Math.floor((leftTime % 3600) / 60);
-        const seconds = Math.floor(leftTime % 60);
-        return printf('%02d:%02d:%02d', hours, minutes, seconds);
+        return printf('%02d:%02d:%02d',
+                      Math.floor(leftTime / 3600),
+                      Math.floor((leftTime % 3600) / 60),
+                      Math.floor(leftTime % 60));
     }
 
     componentWillMount() {
@@ -88,7 +88,7 @@ class GameTimer extends Component<GameTimerProps, undefined> {
         };
         this.sw.pause();
         this.noSleep.disable();
-        const store = this.props.store.setMenuIndex(menuIndex);
+        const store = this.props.store.setMenuIndex(menuIndex).setLabel('Go').setRunning(false);
         this.sw = new StopWatch(store.getTitle(), store.getDuration(), onTick, onFinish);
         this.props.updateStore(store);
     }
@@ -99,8 +99,9 @@ class GameTimer extends Component<GameTimerProps, undefined> {
                 <div>
                     <DropDownMenu value={this.props.store.menuIndex}
                                   onChange={(event, index, value) => this.onChange(value)}>
-                        {this.props.store.getNames().toKeyedSeq().map((n, i) =>
-                            <MenuItem value={i} key={i} primaryText={n}/>).toArray()}
+                        {this.props.store.getNames().toKeyedSeq().map((n, i) => (
+                            <MenuItem value={i} key={i}
+                                      primaryText={n}/>)).toArray()}
                     </DropDownMenu>
                     <List>
                         {this.props.store.getTimerList().toKeyedSeq().map((e: TimerEntry, i) => (
@@ -129,11 +130,11 @@ class GameTimer extends Component<GameTimerProps, undefined> {
                                                   if (this.sw.canRun()) {
                                                       this.sw.go();
                                                       this.props.updateStore(this.props.store.setLabel('Pause')
-                                                          .setRunning(true));
+                                                                                 .setRunning(true));
                                                   } else {
                                                       this.sw.pause();
                                                       this.props.updateStore(this.props.store.setLabel('Go')
-                                                          .setRunning(false));
+                                                                                 .setRunning(false));
                                                   }
                                               }}/>
                             )}

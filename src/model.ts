@@ -7,25 +7,19 @@ export enum SWState {
 }
 
 export class StopWatch {
-    title: string;
     mseconds: number;
     timeoutIds: Array<number>;
     checkpoint: Array<number>;
-    onTick: (sw: StopWatch) => void;
-    onFinish: (sw: StopWatch) => void;
     swstate: SWState;
     started: Option<Date>;
 
-    constructor(title: string, seconds: number,
-                onTick: (sw: StopWatch) => void = () => {
+    constructor(public title: string, seconds: number,
+                public onTick: (sw: StopWatch) => void = () => {
                     return;
                 },
-                onFinish: (sw: StopWatch) => void = () => {
+                public onFinish: (sw: StopWatch) => void = () => {
                     return;
                 }) {
-        this.title = title;
-        this.onTick = onTick;
-        this.onFinish = onFinish;
         this.mseconds = seconds * 1000;
         this.timeoutIds = [];
         this.started = None;
@@ -117,8 +111,8 @@ export class DataStore extends Record({
         new MenuEntry({
             name: 'テスト',
             timers: List.of(
-                new TimerEntry({title: 'A', duration: 3}),
-                new TimerEntry({title: 'B', duration: 3}),
+                new TimerEntry({title: 'A', duration: 5}),
+                new TimerEntry({title: 'B', duration: 4}),
                 new TimerEntry({title: 'C', duration: 3})
             )
         }),
