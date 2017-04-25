@@ -7,7 +7,7 @@ export enum SWState {
 }
 
 export class StopWatch {
-    mseconds: number;
+    leftTime: LeftTime;
     timeoutIds: Array<number>;
     swstate: SWState;
     started: Option<Date>;
@@ -19,7 +19,7 @@ export class StopWatch {
                 public onFinish: (sw: StopWatch) => void = () => {
                     return;
                 }) {
-        this.mseconds = seconds * 1000;
+        this.leftTime = new LeftTime(seconds * 1000);
         this.timeoutIds = [];
         this.started = None;
         this.swstate = SWState.BEFORE_START;
@@ -43,24 +43,22 @@ export class StopWatch {
         if (this.swstate === SWState.SUSPEND || this.swstate === SWState.FINISHED) {
             return;
         }
-        this.mseconds = this.leftmsec().milliSeconds;
+        this.leftTime = this.leftmsec();
         this.started = None;
         this.timeoutIds.forEach(id => clearTimeout(id));
         this.swstate = SWState.SUSPEND;
     }
 
     leftmsec(): LeftTime {
-        return new LeftTime(this.started.map(
-            (started: Date) =>
-                (this.mseconds -
-                ((new Date()).getTime() - started.getTime()))).getOrElse(() => this.mseconds));
+        return this.leftTime.calc(this.started.map((started: Date) => (new Date()).getTime() - started.getTime())
+                                      .getOrElse(() => 0));
     }
 
     tick_() {
         this.timeoutIds.push(window.setTimeout(
             () => {
                 this.onTick(this);
-                if (this.leftmsec().milliSeconds <= 0) {
+                if (this.leftmsec().finished ) {
                     this.swstate = SWState.FINISHED;
                     this.onFinish(this);
                 } else {
@@ -199,10 +197,17 @@ export class DataStore extends Record({
 
 class LeftTime {
 
-    constructor(public milliSeconds: number) {
+    constructor(private milliSeconds: number) {
 
     }
 
+    get seconds() {
+        return this.milliSeconds / 1000;
+    }
+
+    get finished() {
+        return this.milliSeconds < 0;
+    }
     timestr(): string {
         if (this.milliSeconds <= 0) {
             return '00:00:00';
@@ -229,4 +234,7 @@ class LeftTime {
         }
     }
 
+    calc(diff: number) {
+        return new LeftTime(this.milliSeconds - diff);
+    }
 }

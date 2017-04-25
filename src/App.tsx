@@ -41,7 +41,7 @@ class GameTimer extends Component<GameTimerProps, undefined> {
 
     onChange(menuIndex: number) {
         const onTick = (sw: StopWatch) => {
-            if (sw.leftmsec().milliSeconds / 1000 < this.checkpoint[0]) {
+            if (sw.leftmsec().seconds < this.checkpoint[0]) {
                 const synthes = new SpeechSynthesisUtterance(sw.leftmsec().toLeftString_());
                 synthes.lang = 'ja-JP';
                 synthes.rate = 1.2;
