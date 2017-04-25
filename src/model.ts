@@ -9,7 +9,6 @@ export enum SWState {
 export class StopWatch {
     mseconds: number;
     timeoutIds: Array<number>;
-    checkpoint: Array<number>;
     swstate: SWState;
     started: Option<Date>;
 
@@ -23,8 +22,6 @@ export class StopWatch {
         this.mseconds = seconds * 1000;
         this.timeoutIds = [];
         this.started = None;
-        this.checkpoint = Range(1, 6).concat(Range(10, 60, 10)).concat(Range(60, 15 * 60, 60))
-            .filter((element: number) => element < seconds).reverse().toArray();
         this.swstate = SWState.BEFORE_START;
     }
 
@@ -62,8 +59,8 @@ export class StopWatch {
             () => {
                 this.onTick(this);
                 if (this.leftmsec() <= 0) {
-                    this.onFinish(this);
                     this.swstate = SWState.FINISHED;
+                    this.onFinish(this);
                 } else {
                     this.tick_();
                 }
