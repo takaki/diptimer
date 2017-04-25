@@ -35,45 +35,20 @@ class GameTimer extends Component<GameTimerProps, undefined> {
         this.sw = new StopWatch('dummy', 0);
     }
 
-    timestr(leftTime: number): string {
-        if (leftTime <= 0) {
-            return '00:00:00';
-        }
-        return printf('%02d:%02d:%02d',
-                      Math.floor(leftTime / 3600),
-                      Math.floor((leftTime % 3600) / 60),
-                      Math.floor(leftTime % 60));
-    }
-
     componentWillMount() {
         this.onChange(this.props.store.menuIndex);
     }
 
-    toLeftString_(left: number): string {
-        const totalSeconds = Math.ceil(left / 1000);
-        if (totalSeconds < 10) {
-            return totalSeconds.toString();
-        } else {
-            const hours = Math.floor(totalSeconds / 3600);
-            const minutes = Math.floor((totalSeconds % 3600) / 60);
-            const seconds = Math.floor(totalSeconds % 60);
-            return `残り${(hours > 0 ? hours + '時間' : '')}
-        ${(minutes > 0 ? minutes + '分' : '')}
-        ${(seconds > 0 ? seconds + '秒' : '')}
-        です`;
-        }
-    }
-
     onChange(menuIndex: number) {
         const onTick = (sw: StopWatch) => {
-            if (sw.leftmsec() / 1000 < this.checkpoint[0]) {
-                const synthes = new SpeechSynthesisUtterance(this.toLeftString_(sw.leftmsec()));
+            if (sw.leftmsec().milliSeconds / 1000 < this.checkpoint[0]) {
+                const synthes = new SpeechSynthesisUtterance(sw.leftmsec().toLeftString_());
                 synthes.lang = 'ja-JP';
                 synthes.rate = 1.2;
                 speechSynthesis.speak(synthes);
                 this.checkpoint.shift();
             }
-            this.props.updateStore(this.props.store.setTime(this.timestr(sw.leftmsec() / 1000)));
+            this.props.updateStore(this.props.store.setTime(sw.leftmsec().timestr()));
         };
         const onFinish = (sw: StopWatch) => {
             if (this.props.store.isTimerLeft()) {
@@ -120,7 +95,7 @@ class GameTimer extends Component<GameTimerProps, undefined> {
                         )).toArray()}
                         <Divider/>
                         <div className="time-display" data-is-finish={this.props.store.finish}>
-                            <code>{this.timestr(this.sw.leftmsec() / 1000)} </code></div>
+                            <code>{this.sw.leftmsec().timestr()} </code></div>
                         <div className="control-buttons">
                             {this.props.store.finish ? '' : (
                                 <RaisedButton label={this.props.store.label}

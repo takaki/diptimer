@@ -43,22 +43,24 @@ export class StopWatch {
         if (this.swstate === SWState.SUSPEND || this.swstate === SWState.FINISHED) {
             return;
         }
-        this.mseconds = this.leftmsec();
+        this.mseconds = this.leftmsec().milliSeconds;
         this.started = None;
         this.timeoutIds.forEach(id => clearTimeout(id));
         this.swstate = SWState.SUSPEND;
     }
 
-    leftmsec(): number {
-        return this.started.map((started: Date) =>
-            (this.mseconds - ((new Date()).getTime() - started.getTime()))).getOrElse(() => this.mseconds);
+    leftmsec(): LeftTime {
+        return new LeftTime(this.started.map(
+            (started: Date) =>
+                (this.mseconds -
+                ((new Date()).getTime() - started.getTime()))).getOrElse(() => this.mseconds));
     }
 
     tick_() {
         this.timeoutIds.push(window.setTimeout(
             () => {
                 this.onTick(this);
-                if (this.leftmsec() <= 0) {
+                if (this.leftmsec().milliSeconds <= 0) {
                     this.swstate = SWState.FINISHED;
                     this.onFinish(this);
                 } else {
@@ -74,56 +76,57 @@ export class StopWatch {
 }
 
 export class TimerEntry extends Record({
-    title: '',
-    duration: 0
-}) {
+                                           title: '',
+                                           duration: 0
+                                       }) {
     title: string;
     duration: number;
 }
 class MenuEntry extends Record({
-    name: '',
-    timers: List()
-}) {
+                                   name: '',
+                                   timers: List()
+                               }) {
     name: string;
     timers: List<TimerEntry>;
 }
 
 export class DataStore extends Record({
-    menuIndex: 0,
-    timerIndex: 0,
-    time: '',
-    label: 'Go',
-    running: false,
-    finish: false,
-}) {
+                                          menuIndex: 0,
+                                          timerIndex: 0,
+                                          time: '',
+                                          label: 'Go',
+                                          running: false,
+                                          finish: false,
+                                      }) {
     static timerMenu = List.of(
         new MenuEntry({
-            name: 'ディプロマシー',
-            timers: List.of(
-                new TimerEntry({title: '外交フェイズ', duration: 15 * 60}),
-                new TimerEntry({title: '命令記述フェイズ', duration: 5 * 60}),
-                new TimerEntry({title: '命令解決フェイズ', duration: 10 * 60})
-            )
-        }),
+                          name: 'ディプロマシー',
+                          timers: List.of(
+                              new TimerEntry({title: '外交フェイズ', duration: 15 * 60}),
+                              new TimerEntry({title: '命令記述フェイズ', duration: 5 * 60}),
+                              new TimerEntry({title: '命令解決フェイズ', duration: 10 * 60})
+                          )
+                      }),
         new MenuEntry({
-            name: 'テスト',
-            timers: List.of(
-                new TimerEntry({title: 'A', duration: 5}),
-                new TimerEntry({title: 'B', duration: 4}),
-                new TimerEntry({title: 'C', duration: 3})
-            )
-        }),
+                          name: 'テスト',
+                          timers: List.of(
+                              new TimerEntry({title: 'A', duration: 5}),
+                              new TimerEntry({title: 'B', duration: 4}),
+                              new TimerEntry({title: 'C', duration: 3})
+                          )
+                      }),
         new MenuEntry({
-            name: 'テスト2',
-            timers: List.of(
-                new TimerEntry({title: 'A', duration: 1}))
-        })).concat(
+                          name: 'テスト2',
+                          timers: List.of(
+                              new TimerEntry({title: 'A', duration: 1}))
+                      })).concat(
         Range(1, 16).map((i: number) => new MenuEntry({
-            name: printf('%d分', i),
-            timers: List.of(new TimerEntry({
-                title: printf('%d分', i), duration: i * 60
-            }))
-        })));
+                                                          name: printf('%d分', i),
+                                                          timers: List.of(new TimerEntry({
+                                                                                             title: printf('%d分', i),
+                                                                                             duration: i * 60
+                                                                                         }))
+                                                      })));
 
     menuIndex: number;
     timerIndex: number;
@@ -190,6 +193,40 @@ export class DataStore extends Record({
 
     nextTimer() {
         return this.setTimerIndex(this.timerIndex + 1);
+    }
+
+}
+
+class LeftTime {
+
+    constructor(public milliSeconds: number) {
+
+    }
+
+    timestr(): string {
+        if (this.milliSeconds <= 0) {
+            return '00:00:00';
+        }
+        const seconds = this.milliSeconds / 1000;
+        return printf('%02d:%02d:%02d',
+                      Math.floor(seconds / 3600),
+                      Math.floor((seconds % 3600) / 60),
+                      Math.floor(seconds % 60));
+    }
+
+    toLeftString_(): string {
+        const seconds = Math.ceil(this.milliSeconds / 1000);
+        if (seconds < 10) {
+            return seconds.toString();
+        } else {
+            const hour = Math.floor(seconds / 3600);
+            const min = Math.floor((seconds % 3600) / 60);
+            const sec = Math.floor(seconds % 60);
+            return `残り${(hour > 0 ? hour + '時間' : '')}
+        ${(min > 0 ? min + '分' : '')}
+        ${(sec > 0 ? sec + '秒' : '')}
+        です`;
+        }
     }
 
 }
