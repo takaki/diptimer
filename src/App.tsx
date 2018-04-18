@@ -20,7 +20,7 @@ interface GameTimerProps {
     updateStore: (d: DataStore) => void;
 }
 
-class GameTimer extends Component<GameTimerProps, undefined> {
+class GameTimer extends Component<GameTimerProps> {
     noSleep: NoSleep;
     sw: StopWatch;
     checkpoint: Array<number>;
@@ -101,17 +101,17 @@ class GameTimer extends Component<GameTimerProps, undefined> {
                                 <RaisedButton label={this.props.store.label}
                                               className="button"
                                               icon={this.props.store.running ? <AvPause/> :
-                                                  <AvPlayArrow/> }
+                                                  <AvPlayArrow/>}
                                               onClick={() => {
                                                   this.noSleep.enable();
                                                   if (this.sw.canRun()) {
                                                       this.sw.go();
                                                       this.props.updateStore(this.props.store.setLabel('Pause')
-                                                                                 .setRunning(true));
+                                                          .setRunning(true));
                                                   } else {
                                                       this.sw.pause();
                                                       this.props.updateStore(this.props.store.setLabel('Go')
-                                                                                 .setRunning(false));
+                                                          .setRunning(false));
                                                   }
                                               }}/>
                             )}
@@ -134,9 +134,9 @@ class GameTimer extends Component<GameTimerProps, undefined> {
 
 const initialState = new DataStore();
 
-const updateStore = createAction('UPDATE_MODEL');
+const updateStore = createAction('UPDATE_MODEL', (m: DataStore) => m);
 
-const reducer = handleActions<DataStore>(
+const reducer = handleActions(
     {
         ['UPDATE_MODEL']: (state, action) => action.payload,
     },
@@ -165,7 +165,7 @@ class App extends Component<AppProps, undefined> {
         const DApp = connect(mapStateToProps, mapDispatchToProps)(GameTimer);
         return (
             <Provider store={store}>
-                <DApp />
+                <DApp/>
             </Provider>);
     }
 }
