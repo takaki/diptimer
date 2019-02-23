@@ -1,123 +1,155 @@
-import * as React from 'react';
-import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-import * as injectTapEventPlugin from 'react-tap-event-plugin';
-import './App.css';
-import {Divider, DropDownMenu, List, ListItem, MenuItem, RaisedButton} from 'material-ui';
-import {AvPause, AvPlayArrow, ImageTimer, ImageTimerOff} from 'material-ui/svg-icons';
-import {createStore} from 'redux';
-import {createAction, handleActions} from 'redux-actions';
-import {connect, Dispatch, Provider} from 'react-redux';
-import {DataStore, StopWatch, TimerEntry} from './model';
-import NoSleep from './nosleep';
-import Component = React.Component;
-import printf = require('printf');
-import {Range} from 'immutable';
+/* tslint:disable:jsx-no-multiline-js */
+import {
+    Button,
+    createMuiTheme,
+    Divider,
+    IconButton,
+    List,
+    ListItem,
+    ListItemSecondaryAction,
+    ListItemText,
+    MenuItem,
+    MuiThemeProvider,
+    Select,
+} from "@material-ui/core";
+import { Pause, PlayArrow, Timer, TimerOff } from "@material-ui/icons";
+import { Range } from "immutable";
+// @ts-ignore
+import NoSleep from "nosleep.js";
+import printf from "printf";
+import React, { Component } from "react";
+import { connect, Provider } from "react-redux";
+import { createStore, Dispatch } from "redux";
+import "./App.css";
+import { DataStore } from "./model/data_store";
+import { StopWatch } from "./model/model";
+import { TimerEntry } from "./model/timer_entry";
 
-injectTapEventPlugin();
+const theme = createMuiTheme();
 
-interface GameTimerProps {
-    store: DataStore;
-    updateStore: (d: DataStore) => void;
-}
+class GameTimer extends Component<IProps> {
 
-class GameTimer extends Component<GameTimerProps> {
-    noSleep: NoSleep;
-    sw: StopWatch;
-    checkpoint: Array<number>;
-
-    static timeformat_(d: number) {
-        return printf('%d:%02d', Math.floor(d / 60), d % 60);
+    public static timeformat_(d: number) {
+        return printf("%d:%02d", Math.floor(d / 60), d % 60);
     }
 
-    constructor() {
-        super();
+    public noSleep: NoSleep;
+    public sw: StopWatch;
+    public checkpoint: number[];
+
+    constructor(props: any) {
+        super(props);
         this.noSleep = new NoSleep();
-        this.sw = new StopWatch('dummy', 0);
+        this.sw = new StopWatch("dummy", 0);
+        this.checkpoint = Array.of();
     }
 
-    componentWillMount() {
-        this.onChange(this.props.store.menuIndex);
+    public componentWillMount() {
+        this.onChange(this.props.dataStore!.menuIndex);
     }
 
-    onChange(menuIndex: number) {
+    public onChange(menuIndex: number) {
         const onTick = (sw: StopWatch) => {
             if (sw.leftmsec().seconds < this.checkpoint[0]) {
                 const synthes = new SpeechSynthesisUtterance(sw.leftmsec().toLeftString_());
-                synthes.lang = 'ja-JP';
+                synthes.lang = "ja-JP";
                 synthes.rate = 1.2;
                 speechSynthesis.speak(synthes);
                 this.checkpoint.shift();
             }
-            this.props.updateStore(this.props.store.setTime(sw.leftmsec().timestr()));
+            this.props.updateStore(this.props.dataStore.setTime(sw.leftmsec().timestr()));
         };
         const onFinish = (sw: StopWatch) => {
-            if (this.props.store.isTimerLeft()) {
-                const store = this.props.store.nextTimer();
+            if (this.props.dataStore.isTimerLeft()) {
+                const store = this.props.dataStore.nextTimer();
                 this.prepareSW(store, onTick, onFinish);
                 this.props.updateStore(store);
                 this.sw.go();
             } else {
-                const synthes = new SpeechSynthesisUtterance('終了です。');
-                synthes.lang = 'ja-JP';
+                const synthes = new SpeechSynthesisUtterance("終了です。");
+                synthes.lang = "ja-JP";
                 speechSynthesis.speak(synthes);
-                this.props.updateStore(this.props.store.setFinish(true));
+                this.props.updateStore(this.props.dataStore.setFinish(true));
             }
         };
         this.sw.pause();
         this.noSleep.disable();
-        const store = this.props.store.setMenuIndex(menuIndex).setLabel('Go').setRunning(false);
+        const store = this.props.dataStore.setMenuIndex(menuIndex).setLabel("Go").setRunning(false);
         this.prepareSW(store, onTick, onFinish);
         this.props.updateStore(store);
     }
 
-    render() {
+    public render() {
         return (
-            <MuiThemeProvider>
+            <MuiThemeProvider theme={theme}>
                 <div>
-                    <DropDownMenu value={this.props.store.menuIndex}
-                                  onChange={(event, index, value) => this.onChange(value)}>
-                        {this.props.store.getNames().toKeyedSeq().map((n, i) => (
-                            <MenuItem value={i} key={i}
-                                      primaryText={n}/>)).toArray()}
-                    </DropDownMenu>
+                    <Select
+                        value={this.props.dataStore.menuIndex}
+                        onChange={(ev) => {
+                            this.onChange(parseInt(ev.target.value, 10));
+                        }}
+                    >
+                        {
+                            this.props.dataStore.getNames().map((n, i) => (
+                                <MenuItem value={i} key={n}>
+                                    {n}
+                                </MenuItem>
+                            ))}
+                    </Select>
                     <List>
-                        {this.props.store.getTimerList().toKeyedSeq().map((e: TimerEntry, i) => (
+                        {this.props.dataStore.getTimerList().map((e: TimerEntry, i) => (
                             <ListItem
+                                button={true}
                                 disabled={true}
                                 className="timer-list"
-                                primaryText={printf(
-                                    '%s %d:%02d', e.title, Math.floor(e.duration / 60),
-                                    e.duration % 60)}
+                                data-is-current={i === this.props.dataStore.timerIndex}
                                 key={i}
-                                data-is-current={i === this.props.store.timerIndex}
-                                rightIcon={i === this.props.store.timerIndex ? <ImageTimer/> :
-                                    <ImageTimerOff/>}/>
-                        )).toArray()}
+                            >
+                                <ListItemText>
+                                    {printf("%s %d:%02d", e.title, Math.floor(e.duration / 60), e.duration % 60)}
+                                </ListItemText>
+                                <ListItemSecondaryAction>
+                                    <IconButton aria-label="Delete">
+                                        {i === this.props.dataStore.timerIndex ? <Timer/> : <TimerOff/>}
+                                    </IconButton>
+                                </ListItemSecondaryAction>
+                            </ListItem>
+                        ))}
                         <Divider/>
-                        <div className="time-display" data-is-finish={this.props.store.finish}>
-                            <code>{this.sw.leftmsec().timestr()} </code></div>
+                        <div className="time-display" data-is-finish={this.props.dataStore.finish}>
+                            <code>
+                                {this.sw.leftmsec().timestr()} </code></div>
                         <div className="control-buttons">
-                            {this.props.store.finish ? '' : (
-                                <RaisedButton label={this.props.store.label}
-                                              className="button"
-                                              icon={this.props.store.running ? <AvPause/> :
-                                                  <AvPlayArrow/>}
-                                              onClick={() => {
-                                                  this.noSleep.enable();
-                                                  if (this.sw.canRun()) {
-                                                      this.sw.go();
-                                                      this.props.updateStore(this.props.store.setLabel('Pause')
-                                                          .setRunning(true));
-                                                  } else {
-                                                      this.sw.pause();
-                                                      this.props.updateStore(this.props.store.setLabel('Go')
-                                                          .setRunning(false));
-                                                  }
-                                              }}/>
+                            {this.props.dataStore.finish ? "" : (
+                                <Button
+                                    variant="contained"
+                                    className="button"
+                                    onClick={() => {
+                                        this.noSleep.enable();
+                                        if (this.sw.canRun()) {
+                                            this.sw.go();
+                                            this.props.updateStore(this.props.dataStore.setLabel("Pause")
+                                                .setRunning(true));
+                                        } else {
+                                            this.sw.pause();
+                                            this.props.updateStore(this.props.dataStore.setLabel("Go")
+                                                .setRunning(false));
+                                        }
+                                    }}>
+                                    {this.props.dataStore.running ? <Pause/> : <PlayArrow/>}
+                                    {this.props.dataStore.label}
+                                </Button>
                             )}
-                            <RaisedButton className="button" label="Reset" secondary={true} onClick={() => {
-                                this.onChange(this.props.store.menuIndex);
-                            }}/>
+                            <Button
+                                variant="contained"
+                                className="button"
+                                color="secondary"
+                                onClick={() => {
+                                    this.onChange(this.props.dataStore.menuIndex);
+                                }}
+                            >
+                                Reset
+                            </Button>
                         </div>
                     </List>
                 </div>
@@ -132,37 +164,59 @@ class GameTimer extends Component<GameTimerProps> {
     }
 }
 
-const initialState = new DataStore();
+// constants
+const UPDATE_MODEL = "UPDATE_MODEL";
+type UPDATE_MODEL = typeof UPDATE_MODEL;
 
-const updateStore = createAction('UPDATE_MODEL', (m: DataStore) => m);
-
-const reducer = handleActions(
-    {
-        ['UPDATE_MODEL']: (state, action) => action.payload,
-    },
-    initialState
-);
-
-const store = createStore(reducer);
-
-function mapStateToProps(state: DataStore) {
-    return {store: state};
+// actions
+interface IUpdateModel {
+    type: UPDATE_MODEL;
+    dataStore: DataStore;
 }
 
-function mapDispatchToProps(dispatch: Dispatch<DataStore>) {
+type ModelAction = IUpdateModel;
+
+function updateModel(dataStore: DataStore): IUpdateModel {
     return {
-        updateStore: function (m: DataStore) {
-            dispatch(updateStore(m));
-        }
+        type: UPDATE_MODEL,
+        dataStore,
     };
 }
 
-interface AppProps {
+// reducer
+function modelReducer(state: DataStore, action: ModelAction): DataStore {
+    switch (action.type) {
+        case UPDATE_MODEL:
+            return action.dataStore;
+        default:
+            return state;
+    }
 }
 
-class App extends Component<AppProps, undefined> {
-    render() {
-        const DApp = connect(mapStateToProps, mapDispatchToProps)(GameTimer);
+// container
+interface IProps {
+    dataStore: DataStore;
+    updateStore: (d: DataStore) => void;
+}
+
+function mapStateToProps(state: DataStore) {
+    return {dataStore: state};
+}
+
+function mapDispatchToProps(dispatch: Dispatch<ModelAction>) {
+    return {
+        updateStore: (dataStore: DataStore) => dispatch(updateModel(dataStore)),
+    };
+}
+
+// @ts-ignore
+const store = createStore<DataStore>(modelReducer, new DataStore());
+
+const DApp = connect(mapStateToProps, mapDispatchToProps)(GameTimer);
+
+// tslint:disable-next-line
+class App extends Component {
+    public render() {
         return (
             <Provider store={store}>
                 <DApp/>
