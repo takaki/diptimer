@@ -63,14 +63,20 @@ export class GameTimer extends Component<IGameTimerProps> {
                 const synthes = new SpeechSynthesisUtterance("終了です。");
                 synthes.lang = "ja-JP";
                 speechSynthesis.speak(synthes);
-                this.props.updateStore(this.props.dataStore.setFinish(true));
+                this.props.updateStore(this.props.dataStore.set("finish", true));
             }
         };
         this.sw.pause();
         this.noSleep.disable();
-        const dataStore = this.props.dataStore.setMenuIndex(menuIndex).setLabel("Go").setRunning(false);
+        const dataStore = this.props.dataStore.merge({
+            menuIndex,
+            timerIndex: 0,
+            finish: false,
+            label: "Go",
+            running: false,
+        });
         this.prepareSW(dataStore, onTick, onFinish);
-        this.props.updateStore(dataStore);
+        this.props.updateStore(dataStore.set("time", this.sw.remainTime().timestr()));
     }
 
     public render() {
@@ -100,9 +106,10 @@ export class GameTimer extends Component<IGameTimerProps> {
                             </ListItem>
                         ))}
                         <Divider/>
+
                         <div className="time-display" data-is-finish={this.props.dataStore.finish}>
                             <code>
-                                {this.sw.remainTime().timestr()}
+                                {this.props.dataStore.time}
                             </code>
                         </div>
                         <div className="control-buttons">
@@ -141,17 +148,14 @@ export class GameTimer extends Component<IGameTimerProps> {
         this.noSleep.enable();
         if (this.sw.canRun()) {
             this.sw.go();
-            this.props.updateStore(this.props.dataStore.setLabel("Pause")
-                .setRunning(true));
+            this.props.updateStore(this.props.dataStore.merge({label: "Pause", running: true}));
         } else {
             this.sw.pause();
-            this.props.updateStore(this.props.dataStore.setLabel("Go")
-                .setRunning(false));
+            this.props.updateStore(this.props.dataStore.merge({label: "Go", running: false}));
         }
     }
 
     private onResetClick = () => {
-        console.log("onResetClick");
         this.onChange(this.props.dataStore.menuIndex);
     }
 

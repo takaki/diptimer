@@ -22,22 +22,6 @@ const defaultDataStore: IDataStore = {
 };
 
 export class DataStore extends Record(defaultDataStore) implements IDataStore {
-
-    public setMenuIndex(i: number) {
-        return this.merge({menuIndex: i, timerIndex: 0, finish: false, running: false});
-    }
-    public setLabel(s: string) {
-        return this.set("label", s);
-    }
-
-    public setRunning(b: boolean) {
-        return this.set("running", b);
-    }
-
-    public setFinish(b: boolean) {
-        return this.set("finish", b);
-    }
-
     public getCurrentMenu() {
         return timerMenu.get(this.menuIndex);
     }

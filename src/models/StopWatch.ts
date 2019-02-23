@@ -6,7 +6,7 @@ enum SWState {
 }
 
 export class StopWatch {
-    public leftTime: RemainTime;
+    public remainTime1: RemainTime;
     public timeoutIds: number[];
     public swstate: SWState;
     public started: Option<Date>;
@@ -18,7 +18,7 @@ export class StopWatch {
                 public onFinish: (sw: StopWatch) => void = () => {
                     return;
                 }) {
-        this.leftTime = new RemainTime(seconds * 1000);
+        this.remainTime1 = new RemainTime(seconds * 1000);
         this.timeoutIds = [];
         this.started = None;
         this.swstate = SWState.BEFORE_START;
@@ -42,14 +42,14 @@ export class StopWatch {
         if (this.swstate === SWState.SUSPEND || this.swstate === SWState.FINISHED) {
             return;
         }
-        this.leftTime = this.remainTime();
+        this.remainTime1 = this.remainTime();
         this.started = None;
         this.timeoutIds.forEach((id) => clearTimeout(id));
         this.swstate = SWState.SUSPEND;
     }
 
     public remainTime(): RemainTime {
-        return this.leftTime.calc(this.started.map((started: Date) => (new Date()).getTime() - started.getTime())
+        return this.remainTime1.calc(this.started.map((started: Date) => (new Date()).getTime() - started.getTime())
             .getOrElse(() => 0));
     }
 
