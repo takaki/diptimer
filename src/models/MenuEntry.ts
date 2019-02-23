@@ -1,5 +1,5 @@
 import { List, Record } from "immutable";
-import { TimerEntry } from "./timer_entry";
+import { TimerEntry } from "./TimerEntry";
 
 interface IMenuEntry {
     name: string;

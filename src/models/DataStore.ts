@@ -1,7 +1,7 @@
 import { List, Range, Record } from "immutable";
 import printf from "printf";
-import { MenuEntry } from "./menu_entry";
-import { TimerEntry } from "./timer_entry";
+import { MenuEntry } from "./MenuEntry";
+import { TimerEntry } from "./TimerEntry";
 
 interface IDataStore {
     menuIndex: number;
@@ -24,27 +24,27 @@ const defaultDataStore: IDataStore = {
 export class DataStore extends Record(defaultDataStore) implements IDataStore {
 
     public setMenuIndex(i: number) {
-        return new DataStore(this.set("menuIndex", i)).setTimerIndex(0).setFinish(false).setRunning(false);
+        return this.merge({menuIndex: i, timerIndex: 0, finish: false, running: false});
     }
 
     public setTimerIndex(i: number) {
-        return new DataStore(this.set("timerIndex", i));
+        return this.set("timerIndex", i);
     }
 
     public setTime(s: string) {
-        return new DataStore(this.set("time", s));
+        return this.set("time", s);
     }
 
     public setLabel(s: string) {
-        return new DataStore(this.set("label", s));
+        return this.set("label", s);
     }
 
     public setRunning(b: boolean) {
-        return new DataStore(this.set("running", b));
+        return this.set("running", b);
     }
 
     public setFinish(b: boolean) {
-        return new DataStore(this.set("finish", b));
+        return this.set("finish", b);
     }
 
     public getCurrentMenu() {

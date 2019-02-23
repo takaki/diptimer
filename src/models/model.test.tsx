@@ -1,6 +1,6 @@
-import { DataStore } from "./data_store";
-import { MenuEntry } from "./menu_entry";
-import { TimerEntry } from "./timer_entry";
+import { DataStore } from "./DataStore";
+import { MenuEntry } from "./MenuEntry";
+import { TimerEntry } from "./TimerEntry";
 
 it("TimerEntry without crashing", () => {
     const entry = new TimerEntry();
