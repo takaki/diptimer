@@ -26,15 +26,6 @@ export class DataStore extends Record(defaultDataStore) implements IDataStore {
     public setMenuIndex(i: number) {
         return this.merge({menuIndex: i, timerIndex: 0, finish: false, running: false});
     }
-
-    public setTimerIndex(i: number) {
-        return this.set("timerIndex", i);
-    }
-
-    public setTime(s: string) {
-        return this.set("time", s);
-    }
-
     public setLabel(s: string) {
         return this.set("label", s);
     }
@@ -80,7 +71,7 @@ export class DataStore extends Record(defaultDataStore) implements IDataStore {
     }
 
     public nextTimer() {
-        return this.setTimerIndex(this.timerIndex + 1);
+        return this.set("timerIndex", this.timerIndex + 1);
     }
 
 }

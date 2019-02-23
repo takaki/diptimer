@@ -18,17 +18,13 @@ import NoSleep from "nosleep.js";
 import printf from "printf";
 import React, { Component } from "react";
 import { DataStore } from "../models/DataStore";
-import { StopWatch } from "../models/model";
+import { StopWatch } from "../models/StopWatch";
 import { TimerEntry } from "../models/TimerEntry";
 import { IGameTimerProps } from "../types";
 
 const theme = createMuiTheme();
 
 export class GameTimer extends Component<IGameTimerProps> {
-
-    public static timeformat_(d: number) {
-        return printf("%d:%02d", Math.floor(d / 60), d % 60);
-    }
 
     public noSleep: NoSleep;
     public sw: StopWatch;
@@ -39,6 +35,7 @@ export class GameTimer extends Component<IGameTimerProps> {
         this.noSleep = new NoSleep();
         this.sw = new StopWatch("dummy", 0);
         this.checkpoint = Array.of();
+
     }
 
     public componentWillMount() {
@@ -47,14 +44,14 @@ export class GameTimer extends Component<IGameTimerProps> {
 
     public onChange(menuIndex: number) {
         const onTick = (sw: StopWatch) => {
-            if (sw.leftmsec().seconds < this.checkpoint[0]) {
-                const synthes = new SpeechSynthesisUtterance(sw.leftmsec().toLeftString_());
+            if (sw.remainTime().seconds < this.checkpoint[0]) {
+                const synthes = new SpeechSynthesisUtterance(sw.remainTime().toLeftString_());
                 synthes.lang = "ja-JP";
                 synthes.rate = 1.2;
                 speechSynthesis.speak(synthes);
                 this.checkpoint.shift();
             }
-            this.props.updateStore(this.props.dataStore.setTime(sw.leftmsec().timestr()));
+            this.props.updateStore(this.props.dataStore.set("time", sw.remainTime().timestr()));
         };
         const onFinish = (sw: StopWatch) => {
             if (this.props.dataStore.isTimerLeft()) {
@@ -80,18 +77,8 @@ export class GameTimer extends Component<IGameTimerProps> {
         return (
             <MuiThemeProvider theme={theme}>
                 <div>
-                    <Select
-                        value={this.props.dataStore.menuIndex}
-                        onChange={(ev) => {
-                            this.onChange(parseInt(ev.target.value, 10));
-                        }}
-                    >
-                        {
-                            this.props.dataStore.getNames().map((n, i) => (
-                                <MenuItem value={i} key={n}>
-                                    {n}
-                                </MenuItem>
-                            ))}
+                    <Select value={this.props.dataStore.menuIndex} onChange={this.onMenuSelect}>
+                        {this.props.dataStore.getNames().map((n, i) => (<MenuItem value={i} key={n}> {n} </MenuItem>))}
                     </Select>
                     <List>
                         {this.props.dataStore.getTimerList().map((e: TimerEntry, i) => (
@@ -115,24 +102,16 @@ export class GameTimer extends Component<IGameTimerProps> {
                         <Divider/>
                         <div className="time-display" data-is-finish={this.props.dataStore.finish}>
                             <code>
-                                {this.sw.leftmsec().timestr()} </code></div>
+                                {this.sw.remainTime().timestr()}
+                            </code>
+                        </div>
                         <div className="control-buttons">
                             {this.props.dataStore.finish ? "" : (
                                 <Button
                                     variant="contained"
                                     className="button"
-                                    onClick={() => {
-                                        this.noSleep.enable();
-                                        if (this.sw.canRun()) {
-                                            this.sw.go();
-                                            this.props.updateStore(this.props.dataStore.setLabel("Pause")
-                                                .setRunning(true));
-                                        } else {
-                                            this.sw.pause();
-                                            this.props.updateStore(this.props.dataStore.setLabel("Go")
-                                                .setRunning(false));
-                                        }
-                                    }}>
+                                    onClick={this.onPlayClick}
+                                >
                                     {this.props.dataStore.running ? <Pause/> : <PlayArrow/>}
                                     {this.props.dataStore.label}
                                 </Button>
@@ -141,9 +120,7 @@ export class GameTimer extends Component<IGameTimerProps> {
                                 variant="contained"
                                 className="button"
                                 color="secondary"
-                                onClick={() => {
-                                    this.onChange(this.props.dataStore.menuIndex);
-                                }}
+                                onClick={this.onResetClick}
                             >
                                 Reset
                             </Button>
@@ -158,5 +135,27 @@ export class GameTimer extends Component<IGameTimerProps> {
         this.sw = new StopWatch(store.getTitle(), store.getDuration(), onTick, onFinish);
         this.checkpoint = Range(1, 6).concat(Range(10, 60, 10)).concat(Range(60, 15 * 60, 60))
             .filter((element: number) => element < store.getDuration()).reverse().toArray();
+    }
+
+    private onPlayClick = () => {
+        this.noSleep.enable();
+        if (this.sw.canRun()) {
+            this.sw.go();
+            this.props.updateStore(this.props.dataStore.setLabel("Pause")
+                .setRunning(true));
+        } else {
+            this.sw.pause();
+            this.props.updateStore(this.props.dataStore.setLabel("Go")
+                .setRunning(false));
+        }
+    }
+
+    private onResetClick = () => {
+        console.log("onResetClick");
+        this.onChange(this.props.dataStore.menuIndex);
+    }
+
+    private onMenuSelect = (ev: React.ChangeEvent<HTMLSelectElement>) => {
+        this.onChange(parseInt(ev.target.value, 10));
     }
 }
