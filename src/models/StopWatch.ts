@@ -51,6 +51,10 @@ export class StopWatch {
         return this.remainTime1.calc(this.startedAt ? Date.now() - this.startedAt.getTime() : 0);
     }
 
+    public remainTimeString(): string {
+        return this.remainTime().format();
+    }
+
     public tick_() {
         this.timeoutIds.push(window.setTimeout(
             () => {

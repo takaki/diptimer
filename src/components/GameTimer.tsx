@@ -22,8 +22,6 @@ import { StopWatch } from "../models/StopWatch";
 import { TimerEntry } from "../models/TimerEntry";
 import { IGameTimerProps } from "../types";
 
-const theme = createMuiTheme();
-
 export class GameTimer extends Component<IGameTimerProps> {
 
     public noSleep: NoSleep;
@@ -45,13 +43,13 @@ export class GameTimer extends Component<IGameTimerProps> {
     public onChange(menuIndex: number) {
         const onTick = (sw: StopWatch) => {
             if (sw.remainTime().seconds < this.checkpoint[0]) {
-                const synthes = new SpeechSynthesisUtterance(sw.remainTime().toLeftString_());
+                const synthes = new SpeechSynthesisUtterance(sw.remainTime().toLeftString());
                 synthes.lang = "ja-JP";
                 synthes.rate = 1.2;
                 speechSynthesis.speak(synthes);
                 this.checkpoint.shift();
             }
-            this.props.updateStore(this.props.dataStore.set("time", sw.remainTime().timestr()));
+            this.props.updateStore(this.props.dataStore.set("time", sw.remainTimeString()));
         };
         const onFinish = (sw: StopWatch) => {
             if (this.props.dataStore.isTimerLeft()) {
@@ -76,72 +74,69 @@ export class GameTimer extends Component<IGameTimerProps> {
             running: false,
         });
         this.prepareSW(dataStore, onTick, onFinish);
-        this.props.updateStore(dataStore.set("time", this.sw.remainTime().timestr()));
+        this.props.updateStore(dataStore.set("time", this.sw.remainTimeString()));
     }
 
     public render() {
         return (
-            <MuiThemeProvider theme={theme}>
-                <div>
-                    <Select value={this.props.dataStore.menuIndex} onChange={this.onMenuSelect}>
-                        {this.props.dataStore.getNames().map((n, i) => (<MenuItem value={i} key={n}> {n} </MenuItem>))}
-                    </Select>
-                    <List>
-                        {this.props.dataStore.getTimerList().map((e: TimerEntry, i) => (
-                            <ListItem
-                                button={true}
-                                disabled={true}
-                                className="timer-list"
-                                data-is-current={i === this.props.dataStore.timerIndex}
-                                key={i}
-                            >
-                                <ListItemText>
-                                    {printf("%s %d:%02d", e.title, Math.floor(e.duration / 60), e.duration % 60)}
-                                </ListItemText>
-                                <ListItemSecondaryAction>
-                                    <IconButton aria-label="Delete">
-                                        {i === this.props.dataStore.timerIndex ? <Timer/> : <TimerOff/>}
-                                    </IconButton>
-                                </ListItemSecondaryAction>
-                            </ListItem>
-                        ))}
-                        <Divider/>
+            <div>
+                <Select value={this.props.dataStore.menuIndex} onChange={this.onMenuSelect}>
+                    {this.props.dataStore.getNames().map((n, i) => (<MenuItem value={i} key={n}> {n} </MenuItem>))}
+                </Select>
+                <List>
+                    {this.props.dataStore.getTimerList().map((e: TimerEntry, i) => (
+                        <ListItem
+                            button={true}
+                            disabled={true}
+                            className="timer-list"
+                            data-is-current={i === this.props.dataStore.timerIndex}
+                            key={i}
+                        >
+                            <ListItemText>
+                                {printf("%s %d:%02d", e.title, Math.floor(e.duration / 60), e.duration % 60)}
+                            </ListItemText>
+                            <ListItemSecondaryAction>
+                                <IconButton aria-label="Delete">
+                                    {i === this.props.dataStore.timerIndex ? <Timer/> : <TimerOff/>}
+                                </IconButton>
+                            </ListItemSecondaryAction>
+                        </ListItem>
+                    ))}
+                    <Divider/>
 
-                        <div className="time-display" data-is-finish={this.props.dataStore.finish}>
-                            <code>
-                                {this.props.dataStore.time}
-                            </code>
-                        </div>
-                        <div className="control-buttons">
-                            {this.props.dataStore.finish ? "" : (
-                                <Button
-                                    variant="contained"
-                                    className="button"
-                                    onClick={this.onPlayClick}
-                                >
-                                    {this.props.dataStore.running ? <Pause/> : <PlayArrow/>}
-                                    {this.props.dataStore.label}
-                                </Button>
-                            )}
+                    <div className="time-display" data-is-finish={this.props.dataStore.finish}>
+                        <code>
+                            {this.props.dataStore.time}
+                        </code>
+                    </div>
+                    <div className="control-buttons">
+                        {this.props.dataStore.finish ? "" : (
                             <Button
                                 variant="contained"
                                 className="button"
-                                color="secondary"
-                                onClick={this.onResetClick}
+                                onClick={this.onPlayClick}
                             >
-                                Reset
+                                {this.props.dataStore.running ? <Pause/> : <PlayArrow/>}
+                                {this.props.dataStore.label}
                             </Button>
-                        </div>
-                    </List>
-                </div>
-            </MuiThemeProvider>
+                        )}
+                        <Button
+                            variant="contained"
+                            className="button"
+                            color="secondary"
+                            onClick={this.onResetClick}
+                        >
+                            Reset
+                        </Button>
+                    </div>
+                </List>
+            </div>
         );
     }
 
     private prepareSW(store: DataStore, onTick: (sw: StopWatch) => void, onFinish: (sw: StopWatch) => void) {
         this.sw = new StopWatch(store.getTitle(), store.getDuration(), onTick, onFinish);
-        this.checkpoint = Range(1, 6).concat(Range(10, 60, 10)).concat(Range(60, 15 * 60, 60))
-            .filter((element: number) => element < store.getDuration()).reverse().toArray();
+        this.checkpoint = store.getCheckPoints();
     }
 
     private onPlayClick = () => {

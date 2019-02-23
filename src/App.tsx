@@ -1,3 +1,4 @@
+import { createMuiTheme, MuiThemeProvider } from "@material-ui/core";
 import React, { Component } from "react";
 import { Provider } from "react-redux";
 import { createStore } from "redux";
@@ -8,13 +9,15 @@ import { modelReducer } from "./reducers";
 
 // @ts-ignore
 const store = createStore<DataStore>(modelReducer, new DataStore());
+const theme = createMuiTheme();
 
-// tslint:disable-next-line
 export default class App extends Component {
     public render() {
         return (
-            <Provider store={store}>
-                <GameTimer/>
-            </Provider>);
+            <MuiThemeProvider theme={theme}>
+                <Provider store={store}>
+                    <GameTimer/>
+                </Provider>
+            </MuiThemeProvider>);
     }
 }

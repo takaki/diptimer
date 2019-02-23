@@ -22,13 +22,6 @@ const defaultDataStore: IDataStore = {
 };
 
 export class DataStore extends Record(defaultDataStore) implements IDataStore {
-    public getCurrentMenu() {
-        return timerMenu.get(this.menuIndex);
-    }
-
-    public getName() {
-        return timerMenu.get(this.menuIndex)!.get("name");
-    }
 
     public getTimerList(): List<TimerEntry> {
         return timerMenu.get(this.menuIndex)!.get("timers");
@@ -44,6 +37,12 @@ export class DataStore extends Record(defaultDataStore) implements IDataStore {
 
     public getDuration() {
         return this.getTimer()!.get("duration");
+    }
+
+    public getCheckPoints(): number[] {
+        return Range(1, 6).concat(Range(10, 60, 10)).concat(Range(60, 15 * 60, 60))
+            .filter((e: number) => e < timerMenu.get(this.menuIndex)!.timers.get(this.timerIndex)!.duration)
+            .reverse().toArray();
     }
 
     public getNames() {

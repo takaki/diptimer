@@ -14,7 +14,7 @@ export class RemainTime {
         return this.milliSeconds < 0;
     }
 
-    public timestr(): string {
+    public format(): string {
         if (this.milliSeconds <= 0) {
             return "00:00:00";
         }
@@ -25,7 +25,7 @@ export class RemainTime {
             Math.floor(seconds % 60));
     }
 
-    public toLeftString_(): string {
+    public toLeftString(): string {
         const seconds = Math.ceil(this.milliSeconds / 1000);
         if (seconds < 10) {
             return seconds.toString();
