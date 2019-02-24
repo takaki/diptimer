@@ -1,25 +1,11 @@
-import {
-    Button,
-    createMuiTheme,
-    Divider,
-    IconButton,
-    List,
-    ListItem,
-    ListItemSecondaryAction,
-    ListItemText,
-    MenuItem,
-    MuiThemeProvider,
-    Select,
-} from "@material-ui/core";
-import { Pause, PlayArrow, Timer, TimerOff } from "@material-ui/icons";
-import { Range } from "immutable";
+import { Button, Divider, List, Select } from "@material-ui/core";
+import { Pause, PlayArrow } from "@material-ui/icons";
 // @ts-ignore
 import NoSleep from "nosleep.js";
-import printf from "printf";
 import React, { Component } from "react";
 import { DataStore } from "../models/DataStore";
 import { StopWatch } from "../models/StopWatch";
-import { TimerEntry } from "../models/TimerEntry";
+import { TimerMenu } from "../models/TimerMenu";
 import { IGameTimerProps } from "../types";
 
 export class GameTimer extends Component<IGameTimerProps> {
@@ -27,13 +13,14 @@ export class GameTimer extends Component<IGameTimerProps> {
     public noSleep: NoSleep;
     public sw: StopWatch;
     public checkpoint: number[];
+    public timerMenu: TimerMenu;
 
     constructor(props: any) {
         super(props);
         this.noSleep = new NoSleep();
         this.sw = new StopWatch("dummy", 0);
         this.checkpoint = Array.of();
-
+        this.timerMenu = new TimerMenu();
     }
 
     public componentWillMount() {
@@ -52,7 +39,7 @@ export class GameTimer extends Component<IGameTimerProps> {
             this.props.updateStore(this.props.dataStore.set("time", sw.remainTimeString()));
         };
         const onFinish = (sw: StopWatch) => {
-            if (this.props.dataStore.isTimerLeft()) {
+            if (this.props.dataStore.isTimerLeft(this.timerMenu)) {
                 const store = this.props.dataStore.nextTimer();
                 this.prepareSW(store, onTick, onFinish);
                 this.props.updateStore(store);
@@ -81,27 +68,10 @@ export class GameTimer extends Component<IGameTimerProps> {
         return (
             <div>
                 <Select value={this.props.dataStore.menuIndex} onChange={this.onMenuSelect}>
-                    {this.props.dataStore.getNames().map((n, i) => (<MenuItem value={i} key={n}> {n} </MenuItem>))}
+                    {this.timerMenu.selectItems()}
                 </Select>
                 <List>
-                    {this.props.dataStore.getTimerList().map((e: TimerEntry, i) => (
-                        <ListItem
-                            button={true}
-                            disabled={true}
-                            className="timer-list"
-                            data-is-current={i === this.props.dataStore.timerIndex}
-                            key={i}
-                        >
-                            <ListItemText>
-                                {printf("%s %d:%02d", e.title, Math.floor(e.duration / 60), e.duration % 60)}
-                            </ListItemText>
-                            <ListItemSecondaryAction>
-                                <IconButton aria-label="Delete">
-                                    {i === this.props.dataStore.timerIndex ? <Timer/> : <TimerOff/>}
-                                </IconButton>
-                            </ListItemSecondaryAction>
-                        </ListItem>
-                    ))}
+                    {this.timerMenu.timerList(this.props.dataStore.menuIndex, this.props.dataStore.timerIndex)}
                     <Divider/>
 
                     <div className="time-display" data-is-finish={this.props.dataStore.finish}>
@@ -135,8 +105,9 @@ export class GameTimer extends Component<IGameTimerProps> {
     }
 
     private prepareSW(store: DataStore, onTick: (sw: StopWatch) => void, onFinish: (sw: StopWatch) => void) {
-        this.sw = new StopWatch(store.getTitle(), store.getDuration(), onTick, onFinish);
-        this.checkpoint = store.getCheckPoints();
+        this.sw = new StopWatch(this.props.dataStore.getTitle(this.timerMenu),
+            this.props.dataStore.getDuration(this.timerMenu), onTick, onFinish);
+        this.checkpoint = this.props.dataStore.getCheckPoints(this.timerMenu);
     }
 
     private onPlayClick = () => {
