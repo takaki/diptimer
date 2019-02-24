@@ -6,11 +6,13 @@ enum WatchState {
 
 export class StopWatch {
     public remainTime1: RemainTime;
-    public timeoutIds: number[];
-    public state: WatchState;
-    public startedAt?: Date;
+    public timeoutIds: number[] = [];
+    public state: WatchState = WatchState.BEFORE_START;
+    public startedAt?: Date = undefined;
 
-    constructor(public title: string, seconds: number,
+    constructor(public title: string,
+                seconds: number,
+                public checkPoints: number[],
                 public onTick: (sw: StopWatch) => void = () => {
                     return;
                 },
@@ -18,9 +20,6 @@ export class StopWatch {
                     return;
                 }) {
         this.remainTime1 = new RemainTime(seconds * 1000);
-        this.timeoutIds = [];
-        this.state = WatchState.BEFORE_START;
-        this.startedAt = undefined;
     }
 
     public go() {

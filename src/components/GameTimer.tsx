@@ -12,8 +12,7 @@ export class GameTimer extends Component<IGameTimerProps> {
 
     public noSleep: NoSleep = new NoSleep();
     public timerMenu: TimerMenu = new TimerMenu();
-    private sw: StopWatch = new StopWatch("dummy", 0);
-    private checkpoint: number[] = [];
+    private sw: StopWatch = new StopWatch("dummy", 0, []);
 
     constructor(props: any) {
         super(props);
@@ -39,19 +38,19 @@ export class GameTimer extends Component<IGameTimerProps> {
 
     private onChange(menuIndex: number) {
         const onTick = (sw: StopWatch) => {
-            if (sw.remainTime().seconds < this.checkpoint[0]) {
+            if (sw.remainTime().seconds < sw.checkPoints[0]) {
                 const synthes = new SpeechSynthesisUtterance(sw.remainTime().toLeftString());
                 synthes.lang = "ja-JP";
                 synthes.rate = 1.2;
                 speechSynthesis.speak(synthes);
-                this.checkpoint.shift();
+                sw.checkPoints.shift();
             }
             this.props.updateStore(this.props.dataStore.set("time", sw.remainTimeString()));
         };
         const onFinish = (sw: StopWatch) => {
             if (this.props.dataStore.isTimerLeft(this.timerMenu)) {
                 const store = this.props.dataStore.nextTimer();
-                this.prepareSW(store, onTick, onFinish);
+                this.sw = store.createStopWatch(this.timerMenu, onTick, onFinish);
                 this.props.updateStore(store);
                 this.sw.go();
             } else {
@@ -70,13 +69,8 @@ export class GameTimer extends Component<IGameTimerProps> {
             label: "Go",
             running: false,
         });
-        this.prepareSW(dataStore, onTick, onFinish);
+        this.sw = dataStore.createStopWatch(this.timerMenu, onTick, onFinish);
         this.props.updateStore(dataStore.set("time", this.sw.remainTimeString()));
-    }
-
-    private prepareSW(store: DataStore, onTick: (sw: StopWatch) => void, onFinish: (sw: StopWatch) => void) {
-        this.sw = new StopWatch(store.getTitle(this.timerMenu), store.getDuration(this.timerMenu), onTick, onFinish);
-        this.checkpoint = store.getCheckPoints(this.timerMenu);
     }
 
     private onPlayClick = () => {

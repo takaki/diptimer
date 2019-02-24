@@ -5,6 +5,7 @@ import printf from "printf";
 import React from "react";
 import { TimerEntry } from "./TimerEntry";
 import { TimerMenu } from "./TimerMenu";
+import { StopWatch } from "./StopWatch";
 
 interface IDataStore {
     menuIndex: number;
@@ -110,6 +111,16 @@ export class DataStore extends Record(defaultDataStore) implements IDataStore {
                     Reset
                 </Button>
             </div>);
+    }
+
+    public createStopWatch(timerMenu: TimerMenu,
+                           onTick: (sw: StopWatch) => void,
+                           onFinish: (sw: StopWatch) => void): StopWatch {
+        return new StopWatch(this.getTitle(timerMenu),
+            this.getDuration(timerMenu),
+            this.getCheckPoints(timerMenu),
+            onTick,
+            onFinish);
     }
 
 }
