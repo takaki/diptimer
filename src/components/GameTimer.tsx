@@ -3,7 +3,6 @@ import { Pause } from "@material-ui/icons";
 // @ts-ignore
 import NoSleep from "nosleep.js";
 import React, { Component } from "react";
-import { DataStore } from "../models/DataStore";
 import { StopWatch } from "../models/StopWatch";
 import { TimerMenu } from "../models/TimerMenu";
 import { IGameTimerProps } from "../types";
@@ -14,11 +13,7 @@ export class GameTimer extends Component<IGameTimerProps> {
     public timerMenu: TimerMenu = new TimerMenu();
     private sw: StopWatch = new StopWatch("dummy", 0, []);
 
-    constructor(props: any) {
-        super(props);
-    }
-
-    public componentWillMount() {
+    public componentDidMount() {
         this.onChange(this.props.dataStore!.menuIndex);
     }
 

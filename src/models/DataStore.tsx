@@ -3,9 +3,9 @@ import { Pause, PlayArrow, Timer, TimerOff } from "@material-ui/icons";
 import { List, Range, Record } from "immutable";
 import printf from "printf";
 import React from "react";
+import { StopWatch } from "./StopWatch";
 import { TimerEntry } from "./TimerEntry";
 import { TimerMenu } from "./TimerMenu";
-import { StopWatch } from "./StopWatch";
 
 interface IDataStore {
     menuIndex: number;
@@ -27,25 +27,21 @@ const defaultDataStore: IDataStore = {
 
 export class DataStore extends Record(defaultDataStore) implements IDataStore {
 
-    public getTimerList(timerMenu: TimerMenu): List<TimerEntry> {
-        return timerMenu.menuEntries.get(this.menuIndex)!.timers;
-    }
-
     public getTimer(timerMenu: TimerMenu) {
-        return timerMenu.menuEntries.get(this.menuIndex)!.timers.get(this.timerIndex);
+        return timerMenu.menuEntries.get(this.menuIndex)!.timers.get(this.timerIndex)!;
     }
 
     public getTitle(timerMenu: TimerMenu) {
-        return this.getTimer(timerMenu)!.get("title");
+        return this.getTimer(timerMenu).get("title");
     }
 
     public getDuration(timerMenu: TimerMenu) {
-        return this.getTimer(timerMenu)!.get("duration");
+        return this.getTimer(timerMenu).get("duration");
     }
 
     public getCheckPoints(timerMenu: TimerMenu): number[] {
         return Range(1, 6).concat(Range(10, 60, 10)).concat(Range(60, 15 * 60, 60))
-            .filter((e: number) => e < timerMenu.menuEntries.get(this.menuIndex)!.timers.get(this.timerIndex)!.duration)
+            .filter((e: number) => e < this.getDuration(timerMenu))
             .reverse().toArray();
     }
 

@@ -9,7 +9,11 @@ import { modelReducer } from "./reducers";
 
 // @ts-ignore
 const store = createStore<DataStore>(modelReducer, new DataStore());
-const theme = createMuiTheme();
+const theme = createMuiTheme({
+    typography: {
+        useNextVariants: true,
+    },
+});
 
 export default class App extends Component {
     public render() {
