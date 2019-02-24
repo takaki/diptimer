@@ -6,11 +6,11 @@ import { MenuEntry } from "./MenuEntry";
 import { TimerEntry } from "./TimerEntry";
 
 interface ITimerMenu {
-    entries: List<MenuEntry>;
+    menuEntries: List<MenuEntry>;
 }
 
 const defaultTimerMenu: ITimerMenu = {
-    entries: List.of(
+    menuEntries: List.of(
         new MenuEntry({
             name: "ディプロマシー",
             timers: List.of(
@@ -44,7 +44,7 @@ const defaultTimerMenu: ITimerMenu = {
 export class TimerMenu extends Record(defaultTimerMenu) implements ITimerMenu {
 
     public selectMenu(menuIndex: number, onMenuSelect: (ev: React.ChangeEvent<HTMLSelectElement>) => void) {
-        const selectItems = this.entries.map((e: MenuEntry) => e.name).map((n, i) => (
+        const selectItems = this.menuEntries.map((e: MenuEntry) => e.name).map((n, i) => (
             <MenuItem value={i} key={n}>{n}</MenuItem>));
         return (
             <Select value={menuIndex} onChange={onMenuSelect}>

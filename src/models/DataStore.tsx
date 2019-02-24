@@ -27,11 +27,11 @@ const defaultDataStore: IDataStore = {
 export class DataStore extends Record(defaultDataStore) implements IDataStore {
 
     public getTimerList(timerMenu: TimerMenu): List<TimerEntry> {
-        return timerMenu.entries.get(this.menuIndex)!.timers;
+        return timerMenu.menuEntries.get(this.menuIndex)!.timers;
     }
 
     public getTimer(timerMenu: TimerMenu) {
-        return timerMenu.entries.get(this.menuIndex)!.timers.get(this.timerIndex);
+        return timerMenu.menuEntries.get(this.menuIndex)!.timers.get(this.timerIndex);
     }
 
     public getTitle(timerMenu: TimerMenu) {
@@ -44,12 +44,12 @@ export class DataStore extends Record(defaultDataStore) implements IDataStore {
 
     public getCheckPoints(timerMenu: TimerMenu): number[] {
         return Range(1, 6).concat(Range(10, 60, 10)).concat(Range(60, 15 * 60, 60))
-            .filter((e: number) => e < timerMenu.entries.get(this.menuIndex)!.timers.get(this.timerIndex)!.duration)
+            .filter((e: number) => e < timerMenu.menuEntries.get(this.menuIndex)!.timers.get(this.timerIndex)!.duration)
             .reverse().toArray();
     }
 
     public isTimerLeft(timerMenu: TimerMenu) {
-        return this.timerIndex + 1 < timerMenu.entries.get(this.menuIndex)!.timers.size;
+        return this.timerIndex + 1 < timerMenu.menuEntries.get(this.menuIndex)!.timers.size;
     }
 
     public nextTimer() {
@@ -57,7 +57,7 @@ export class DataStore extends Record(defaultDataStore) implements IDataStore {
     }
 
     public timerList(timerMenu: TimerMenu) {
-        return timerMenu.entries.get(this.menuIndex)!.timers.map((e: TimerEntry, i) => (
+        return timerMenu.menuEntries.get(this.menuIndex)!.timers.map((e: TimerEntry, i) => (
             <ListItem
                 button={true}
                 disabled={true}
