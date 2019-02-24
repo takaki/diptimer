@@ -37,6 +37,7 @@
 
 .timer-list {
     background-color: white;
+    text-align: center !important;
 }
 
 .time-display {

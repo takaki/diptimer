@@ -1,5 +1,5 @@
-import { Button, Divider, List, Select } from "@material-ui/core";
-import { Pause, PlayArrow } from "@material-ui/icons";
+import { Divider, List } from "@material-ui/core";
+import { Pause } from "@material-ui/icons";
 // @ts-ignore
 import NoSleep from "nosleep.js";
 import React, { Component } from "react";
@@ -10,24 +10,34 @@ import { IGameTimerProps } from "../types";
 
 export class GameTimer extends Component<IGameTimerProps> {
 
-    public noSleep: NoSleep;
-    public sw: StopWatch;
-    public checkpoint: number[];
-    public timerMenu: TimerMenu;
+    public noSleep: NoSleep = new NoSleep();
+    public timerMenu: TimerMenu = new TimerMenu();
+    private sw: StopWatch = new StopWatch("dummy", 0);
+    private checkpoint: number[] = [];
 
     constructor(props: any) {
         super(props);
-        this.noSleep = new NoSleep();
-        this.sw = new StopWatch("dummy", 0);
-        this.checkpoint = Array.of();
-        this.timerMenu = new TimerMenu();
     }
 
     public componentWillMount() {
         this.onChange(this.props.dataStore!.menuIndex);
     }
 
-    public onChange(menuIndex: number) {
+    public render() {
+        return (
+            <div>
+                {this.timerMenu.selectMenu(this.props.dataStore.menuIndex, this.onMenuSelect)}
+                <List>
+                    {this.props.dataStore.timerList(this.timerMenu)}
+                    <Divider/>
+                    {this.props.dataStore.timeDisplay()}
+                    {this.props.dataStore.controlButtons(this.onPlayClick, this.onResetClick)}
+                </List>
+            </div>
+        );
+    }
+
+    private onChange(menuIndex: number) {
         const onTick = (sw: StopWatch) => {
             if (sw.remainTime().seconds < this.checkpoint[0]) {
                 const synthes = new SpeechSynthesisUtterance(sw.remainTime().toLeftString());
@@ -64,50 +74,9 @@ export class GameTimer extends Component<IGameTimerProps> {
         this.props.updateStore(dataStore.set("time", this.sw.remainTimeString()));
     }
 
-    public render() {
-        return (
-            <div>
-                <Select value={this.props.dataStore.menuIndex} onChange={this.onMenuSelect}>
-                    {this.timerMenu.selectItems()}
-                </Select>
-                <List>
-                    {this.timerMenu.timerList(this.props.dataStore.menuIndex, this.props.dataStore.timerIndex)}
-                    <Divider/>
-
-                    <div className="time-display" data-is-finish={this.props.dataStore.finish}>
-                        <code>
-                            {this.props.dataStore.time}
-                        </code>
-                    </div>
-                    <div className="control-buttons">
-                        {this.props.dataStore.finish ? "" : (
-                            <Button
-                                variant="contained"
-                                className="button"
-                                onClick={this.onPlayClick}
-                            >
-                                {this.props.dataStore.running ? <Pause/> : <PlayArrow/>}
-                                {this.props.dataStore.label}
-                            </Button>
-                        )}
-                        <Button
-                            variant="contained"
-                            className="button"
-                            color="secondary"
-                            onClick={this.onResetClick}
-                        >
-                            Reset
-                        </Button>
-                    </div>
-                </List>
-            </div>
-        );
-    }
-
     private prepareSW(store: DataStore, onTick: (sw: StopWatch) => void, onFinish: (sw: StopWatch) => void) {
-        this.sw = new StopWatch(this.props.dataStore.getTitle(this.timerMenu),
-            this.props.dataStore.getDuration(this.timerMenu), onTick, onFinish);
-        this.checkpoint = this.props.dataStore.getCheckPoints(this.timerMenu);
+        this.sw = new StopWatch(store.getTitle(this.timerMenu), store.getDuration(this.timerMenu), onTick, onFinish);
+        this.checkpoint = store.getCheckPoints(this.timerMenu);
     }
 
     private onPlayClick = () => {

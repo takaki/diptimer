@@ -1,17 +1,16 @@
-import { IconButton, ListItem, ListItemSecondaryAction, ListItemText, MenuItem } from "@material-ui/core";
+import { MenuItem, Select } from "@material-ui/core";
 import { List, Range, Record } from "immutable";
 import printf from "printf";
 import React from "react";
 import { MenuEntry } from "./MenuEntry";
 import { TimerEntry } from "./TimerEntry";
-import { Timer, TimerOff } from "@material-ui/icons";
 
 interface ITimerMenu {
-    menuEntries: List<MenuEntry>;
+    entries: List<MenuEntry>;
 }
 
 const defaultTimerMenu: ITimerMenu = {
-    menuEntries: List.of(
+    entries: List.of(
         new MenuEntry({
             name: "ディプロマシー",
             timers: List.of(
@@ -44,31 +43,12 @@ const defaultTimerMenu: ITimerMenu = {
 
 export class TimerMenu extends Record(defaultTimerMenu) implements ITimerMenu {
 
-
-    public selectItems() {
-        return this.menuEntries.map((e: MenuEntry) => e.name).map((n, i) => (
+    public selectMenu(menuIndex: number, onMenuSelect: (ev: React.ChangeEvent<HTMLSelectElement>) => void) {
+        const selectItems = this.entries.map((e: MenuEntry) => e.name).map((n, i) => (
             <MenuItem value={i} key={n}>{n}</MenuItem>));
+        return (
+            <Select value={menuIndex} onChange={onMenuSelect}>
+                {selectItems}
+            </Select>);
     }
-
-    public timerList(menuIndex: number, timerIndex: number) {
-        return this.menuEntries.get(menuIndex)!.timers.map((e: TimerEntry, i) => (
-            <ListItem
-                button={true}
-                disabled={true}
-                className="timer-list"
-                data-is-current={i === timerIndex}
-                key={i}
-            >
-                <ListItemText>
-                    {printf("%s %d:%02d", e.title, Math.floor(e.duration / 60), e.duration % 60)}
-                </ListItemText>
-                <ListItemSecondaryAction>
-                    <IconButton aria-label="Delete">
-                        {i === timerIndex ? <Timer/> : <TimerOff/>}
-                    </IconButton>
-                </ListItemSecondaryAction>
-            </ListItem>
-        ));
-    }
-
 }
