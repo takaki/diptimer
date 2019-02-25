@@ -9,3 +9,6 @@ export type EXEC_PAUSE = typeof EXEC_PAUSE;
 
 export const EXEC_GO = "EXEC_GO";
 export type EXEC_GO = typeof EXEC_GO;
+
+export const SET_MENU_INDEX = "SET_MENU_INDEX";
+export type SET_MENU_INDEX = typeof SET_MENU_INDEX;

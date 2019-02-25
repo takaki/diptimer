@@ -1,6 +1,5 @@
-import { EXEC_GO, EXEC_PAUSE, SET_REMAIN_TIME, UPDATE_MODEL } from "./constants";
+import { EXEC_GO, EXEC_PAUSE, SET_MENU_INDEX, SET_REMAIN_TIME, UPDATE_MODEL } from "./constants";
 import { DataStore } from "./models/DataStore";
-import { RemainTime } from "./models/RemainTime";
 
 interface IUpdateModel {
     type: UPDATE_MODEL;
@@ -24,7 +23,14 @@ interface IExecGo {
     type: EXEC_GO;
 }
 
-export type ModelAction = IUpdateModel | ISetRemainTime | IExecPause | IExecGo;
+interface ISetMenuIndex {
+    type: SET_MENU_INDEX;
+    payload: {
+        menuIndex: number;
+    };
+}
+
+export type ModelAction = IUpdateModel | ISetRemainTime | IExecPause | IExecGo | ISetMenuIndex;
 
 export function updateModel(dataStore: DataStore): IUpdateModel {
     return {
@@ -53,5 +59,14 @@ export function execPause(): IExecPause {
 export function execGo(): IExecGo {
     return {
         type: EXEC_GO,
+    };
+}
+
+export function setMenuIndex(menuIndex: number): ISetMenuIndex {
+    return {
+        type: SET_MENU_INDEX,
+        payload: {
+            menuIndex,
+        },
     };
 }

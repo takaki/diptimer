@@ -1,9 +1,9 @@
 import { MenuItem, Select } from "@material-ui/core";
 import { List, Range, Record } from "immutable";
-import printf from "printf";
 import React from "react";
 import { MenuEntry } from "./MenuEntry";
 import { TimerEntry } from "./TimerEntry";
+import { RemainTime } from "./RemainTime";
 
 interface ITimerMenu {
     menuEntries: List<MenuEntry>;
@@ -33,9 +33,9 @@ const defaultTimerMenu: ITimerMenu = {
                 new TimerEntry({title: "A", duration: 1})),
         })).concat(
         Range(1, 16).map((i: number) => new MenuEntry({
-            name: printf("%d分", i),
+            name: `${i}分`,
             timers: List.of(new TimerEntry({
-                title: printf("%d分", i),
+                title: `${i}分`,
                 duration: i * 60,
             })),
         }))),
@@ -50,5 +50,9 @@ export class TimerMenu extends Record(defaultTimerMenu) implements ITimerMenu {
             <Select value={menuIndex} onChange={onMenuSelect}>
                 {selectItems}
             </Select>);
+    }
+
+    public remainTimeStr(menuIndex: number): string {
+        return new RemainTime(this.menuEntries.get(menuIndex)!.timers.get(0)!.duration * 1000).format();
     }
 }

@@ -6,4 +6,5 @@ export interface IGameTimerProps {
     setRemainTime: (s: string) => void;
     execPause: () => void;
     execGo: () => void;
+    setMenuIndex: (i: number) => void;
 }

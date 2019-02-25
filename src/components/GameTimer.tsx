@@ -57,13 +57,8 @@ export class GameTimer extends Component<IGameTimerProps> {
         };
         this.sw.pause();
         this.noSleep.disable();
-        const dataStore = this.props.dataStore.merge({
-            menuIndex,
-            timerIndex: 0,
-            finish: false,
-            label: "Go",
-            running: false,
-        });
+        this.props.setMenuIndex(menuIndex);
+        const dataStore = this.props.dataStore.merge({menuIndex, timerIndex: 0});
         this.sw = dataStore.createStopWatch(this.timerMenu, onTick, onFinish);
         this.props.setRemainTime(this.sw.remainTimeString());
     }
