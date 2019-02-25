@@ -1,4 +1,4 @@
-import { SET_REMAIN_TIME, UPDATE_MODEL } from "./constants";
+import { EXEC_GO, EXEC_PAUSE, SET_REMAIN_TIME, UPDATE_MODEL } from "./constants";
 import { DataStore } from "./models/DataStore";
 import { RemainTime } from "./models/RemainTime";
 
@@ -15,7 +15,16 @@ interface ISetRemainTime {
         remainTime: string;
     };
 }
-export type ModelAction = IUpdateModel | ISetRemainTime;
+
+interface IExecPause {
+    type: EXEC_PAUSE;
+}
+
+interface IExecGo {
+    type: EXEC_GO;
+}
+
+export type ModelAction = IUpdateModel | ISetRemainTime | IExecPause | IExecGo;
 
 export function updateModel(dataStore: DataStore): IUpdateModel {
     return {
@@ -30,7 +39,19 @@ export function setRemainTime(remainTime: string): ISetRemainTime {
     return {
         type: SET_REMAIN_TIME,
         payload: {
-            remainTime
+            remainTime,
         },
+    };
+}
+
+export function execPause(): IExecPause {
+    return {
+        type: EXEC_PAUSE,
+    };
+}
+
+export function execGo(): IExecGo {
+    return {
+        type: EXEC_GO,
     };
 }

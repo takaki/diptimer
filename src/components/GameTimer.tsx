@@ -72,10 +72,10 @@ export class GameTimer extends Component<IGameTimerProps> {
         this.noSleep.enable();
         if (this.sw.canRun()) {
             this.sw.go();
-            this.props.updateStore(this.props.dataStore.merge({label: "Pause", running: true}));
+            this.props.execPause();
         } else {
             this.sw.pause();
-            this.props.updateStore(this.props.dataStore.merge({label: "Go", running: false}));
+            this.props.execGo();
         }
     }
 
