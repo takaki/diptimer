@@ -3,7 +3,7 @@ import React, { Component } from "react";
 import { Provider } from "react-redux";
 import { createStore } from "redux";
 import "./App.css";
-import GameTimer from "./containers/GameTimer";
+import GameTimerApp from "./containers/GameTimerApp";
 import { DataStore } from "./models/DataStore";
 import { modelReducer } from "./reducers";
 
@@ -20,7 +20,7 @@ export default class App extends Component {
         return (
             <MuiThemeProvider theme={theme}>
                 <Provider store={store}>
-                    <GameTimer/>
+                    <GameTimerApp/>
                 </Provider>
             </MuiThemeProvider>);
     }
