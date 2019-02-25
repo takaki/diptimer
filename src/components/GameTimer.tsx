@@ -43,10 +43,10 @@ export class GameTimer extends Component<IGameTimerProps> {
         };
         const onFinish = (sw: StopWatch) => {
             if (this.props.dataStore.isTimerLeft(this.timerMenu)) {
-                const store = this.props.dataStore.nextTimer();
-                this.sw = store.createStopWatch(this.timerMenu, onTick, onFinish);
-                this.props.setNextTimer();
+                // FIXME
+                this.sw = this.props.dataStore.nextTimer().createStopWatch(this.timerMenu, onTick, onFinish);
                 this.sw.go();
+                this.props.setNextTimer();
             } else {
                 const synthes = new SpeechSynthesisUtterance("終了です。");
                 synthes.lang = "ja-JP";
@@ -56,10 +56,12 @@ export class GameTimer extends Component<IGameTimerProps> {
         };
         this.sw.pause();
         this.noSleep.disable();
-        this.props.setMenuIndex(menuIndex);
         // FIXME
-        const dataStore = this.props.dataStore.merge({menuIndex, timerIndex: 0});
-        this.sw = dataStore.createStopWatch(this.timerMenu, onTick, onFinish);
+        this.sw = this.props.dataStore.merge({
+            menuIndex,
+            timerIndex: 0,
+        }).createStopWatch(this.timerMenu, onTick, onFinish);
+        this.props.setMenuIndex(menuIndex);
         this.props.setRemainTime(this.sw.remainTimeString());
     }
 
