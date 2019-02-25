@@ -8,4 +8,5 @@ export interface IGameTimerProps {
     execGo: () => void;
     setMenuIndex: (i: number) => void;
     setFinish: () => void;
+    setNextTimer: () => void;
 }

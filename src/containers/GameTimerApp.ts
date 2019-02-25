@@ -1,6 +1,15 @@
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
-import { execGo, execPause, ModelAction, setFinish, setMenuIndex, setRemainTime, updateModel } from "../actions";
+import {
+    execGo,
+    execPause,
+    ModelAction,
+    setFinish,
+    setMenuIndex,
+    setNextTimer,
+    setRemainTime,
+    updateModel
+} from "../actions";
 import { GameTimer } from "../components/GameTimer";
 import { DataStore } from "../models/DataStore";
 
@@ -16,6 +25,7 @@ export function mapDispatchToProps(dispatch: Dispatch<ModelAction>) {
         execGo: () => dispatch(execGo()),
         setMenuIndex: (i: number) => dispatch(setMenuIndex(i)),
         setFinish: () => dispatch(setFinish()),
+        setNextTimer: () => dispatch(setNextTimer()),
     };
 }
 

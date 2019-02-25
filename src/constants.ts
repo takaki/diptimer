@@ -15,3 +15,6 @@ export type SET_MENU_INDEX = typeof SET_MENU_INDEX;
 
 export const SET_FINISH = "SET_FINISH";
 export type SET_FINISH = typeof SET_FINISH;
+
+export const SET_NEXT_TIMER = "SET_NEXT_TIMER";
+export type SET_NEXT_TIMER = typeof SET_NEXT_TIMER;

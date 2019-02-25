@@ -1,4 +1,12 @@
-import { EXEC_GO, EXEC_PAUSE, SET_FINISH, SET_MENU_INDEX, SET_REMAIN_TIME, UPDATE_MODEL } from "./constants";
+import {
+    EXEC_GO,
+    EXEC_PAUSE,
+    SET_FINISH,
+    SET_MENU_INDEX,
+    SET_NEXT_TIMER,
+    SET_REMAIN_TIME,
+    UPDATE_MODEL
+} from "./constants";
 import { DataStore } from "./models/DataStore";
 
 interface IUpdateModel {
@@ -33,7 +41,19 @@ interface ISetMenuIndex {
 interface ISetFinish {
     type: SET_FINISH;
 }
-export type ModelAction = IUpdateModel | ISetRemainTime | IExecPause | IExecGo | ISetMenuIndex | ISetFinish;
+
+interface ISetNextTimer {
+    type: SET_NEXT_TIMER;
+}
+
+export type ModelAction =
+    IUpdateModel
+    | ISetRemainTime
+    | IExecPause
+    | IExecGo
+    | ISetMenuIndex
+    | ISetFinish
+    | ISetNextTimer;
 
 export function updateModel(dataStore: DataStore): IUpdateModel {
     return {
@@ -77,5 +97,11 @@ export function setMenuIndex(menuIndex: number): ISetMenuIndex {
 export function setFinish(): ISetFinish {
     return {
         type: SET_FINISH,
+    };
+}
+
+export function setNextTimer(): ISetNextTimer {
+    return {
+        type: SET_NEXT_TIMER,
     };
 }

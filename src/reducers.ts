@@ -1,5 +1,13 @@
 import { ModelAction } from "./actions";
-import { EXEC_GO, EXEC_PAUSE, SET_FINISH, SET_MENU_INDEX, SET_REMAIN_TIME, UPDATE_MODEL } from "./constants";
+import {
+    EXEC_GO,
+    EXEC_PAUSE,
+    SET_FINISH,
+    SET_MENU_INDEX,
+    SET_NEXT_TIMER,
+    SET_REMAIN_TIME,
+    UPDATE_MODEL
+} from "./constants";
 import { DataStore } from "./models/DataStore";
 
 export function modelReducer(state: DataStore, action: ModelAction): DataStore {
@@ -20,11 +28,12 @@ export function modelReducer(state: DataStore, action: ModelAction): DataStore {
                 label: "Go",
                 running: false,
             });
-
         case SET_FINISH:
             return state.set("finish", true);
+        case SET_NEXT_TIMER:
+            return state.nextTimer();
         default:
             return state;
-            // throw new Error();
+        // throw new Error();
     }
 }

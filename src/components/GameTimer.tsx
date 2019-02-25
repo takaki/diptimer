@@ -45,7 +45,7 @@ export class GameTimer extends Component<IGameTimerProps> {
             if (this.props.dataStore.isTimerLeft(this.timerMenu)) {
                 const store = this.props.dataStore.nextTimer();
                 this.sw = store.createStopWatch(this.timerMenu, onTick, onFinish);
-                this.props.updateStore(store);
+                this.props.setNextTimer();
                 this.sw.go();
             } else {
                 const synthes = new SpeechSynthesisUtterance("終了です。");
