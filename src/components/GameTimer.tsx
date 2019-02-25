@@ -40,7 +40,7 @@ export class GameTimer extends Component<IGameTimerProps> {
                 speechSynthesis.speak(synthes);
                 sw.checkPoints.shift();
             }
-            this.props.updateStore(this.props.dataStore.set("time", sw.remainTimeString()));
+            this.props.setRemainTime(sw.remainTimeString());
         };
         const onFinish = (sw: StopWatch) => {
             if (this.props.dataStore.isTimerLeft(this.timerMenu)) {
@@ -65,7 +65,7 @@ export class GameTimer extends Component<IGameTimerProps> {
             running: false,
         });
         this.sw = dataStore.createStopWatch(this.timerMenu, onTick, onFinish);
-        this.props.updateStore(dataStore.set("time", this.sw.remainTimeString()));
+        this.props.setRemainTime(this.sw.remainTimeString());
     }
 
     private onPlayClick = () => {

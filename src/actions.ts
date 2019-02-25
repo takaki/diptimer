@@ -1,16 +1,36 @@
-import { UPDATE_MODEL } from "./constants";
+import { SET_REMAIN_TIME, UPDATE_MODEL } from "./constants";
 import { DataStore } from "./models/DataStore";
+import { RemainTime } from "./models/RemainTime";
 
 interface IUpdateModel {
     type: UPDATE_MODEL;
-    dataStore: DataStore;
+    payload: {
+        dataStore: DataStore;
+    };
 }
 
-export type ModelAction = IUpdateModel;
+interface ISetRemainTime {
+    type: SET_REMAIN_TIME;
+    payload: {
+        remainTime: string;
+    };
+}
+export type ModelAction = IUpdateModel | ISetRemainTime;
 
 export function updateModel(dataStore: DataStore): IUpdateModel {
     return {
         type: UPDATE_MODEL,
-        dataStore,
+        payload: {
+            dataStore,
+        },
+    };
+}
+
+export function setRemainTime(remainTime: string): ISetRemainTime {
+    return {
+        type: SET_REMAIN_TIME,
+        payload: {
+            remainTime
+        },
     };
 }
