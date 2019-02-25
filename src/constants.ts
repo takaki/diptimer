@@ -12,3 +12,6 @@ export type EXEC_GO = typeof EXEC_GO;
 
 export const SET_MENU_INDEX = "SET_MENU_INDEX";
 export type SET_MENU_INDEX = typeof SET_MENU_INDEX;
+
+export const SET_FINISH = "SET_FINISH";
+export type SET_FINISH = typeof SET_FINISH;

@@ -1,5 +1,4 @@
 import { Divider, List } from "@material-ui/core";
-import { Pause } from "@material-ui/icons";
 // @ts-ignore
 import NoSleep from "nosleep.js";
 import React, { Component } from "react";
@@ -52,12 +51,13 @@ export class GameTimer extends Component<IGameTimerProps> {
                 const synthes = new SpeechSynthesisUtterance("終了です。");
                 synthes.lang = "ja-JP";
                 speechSynthesis.speak(synthes);
-                this.props.updateStore(this.props.dataStore.set("finish", true));
+                this.props.setFinish();
             }
         };
         this.sw.pause();
         this.noSleep.disable();
         this.props.setMenuIndex(menuIndex);
+        // FIXME
         const dataStore = this.props.dataStore.merge({menuIndex, timerIndex: 0});
         this.sw = dataStore.createStopWatch(this.timerMenu, onTick, onFinish);
         this.props.setRemainTime(this.sw.remainTimeString());
