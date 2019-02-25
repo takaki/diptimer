@@ -5,16 +5,8 @@ import {
     SET_MENU_INDEX,
     SET_NEXT_TIMER,
     SET_REMAIN_TIME,
-    UPDATE_MODEL
 } from "./constants";
 import { DataStore } from "./models/DataStore";
-
-interface IUpdateModel {
-    type: UPDATE_MODEL;
-    payload: {
-        dataStore: DataStore;
-    };
-}
 
 interface ISetRemainTime {
     type: SET_REMAIN_TIME;
@@ -47,22 +39,12 @@ interface ISetNextTimer {
 }
 
 export type ModelAction =
-    IUpdateModel
     | ISetRemainTime
     | IExecPause
     | IExecGo
     | ISetMenuIndex
     | ISetFinish
     | ISetNextTimer;
-
-export function updateModel(dataStore: DataStore): IUpdateModel {
-    return {
-        type: UPDATE_MODEL,
-        payload: {
-            dataStore,
-        },
-    };
-}
 
 export function setRemainTime(remainTime: string): ISetRemainTime {
     return {
