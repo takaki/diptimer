@@ -15,14 +15,12 @@ export class RemainTime {
     }
 
     public format(): string {
-        if (this.milliSeconds <= 0) {
-            return "00:00:00";
-        }
-        const seconds = this.milliSeconds / 1000;
-        return printf("%02d:%02d:%02d",
-            Math.floor(seconds / 3600),
-            Math.floor((seconds % 3600) / 60),
-            Math.floor(seconds % 60));
+        return this.milliSeconds <= 0 ?
+            "00:00:00" :
+            printf("%02d:%02d:%02d",
+                Math.floor(this.seconds / 3600),
+                Math.floor((this.seconds % 3600) / 60),
+                Math.floor(this.seconds % 60));
     }
 
     public toLeftString(): string {

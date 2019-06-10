@@ -23,13 +23,17 @@ export class StopWatch {
     }
 
     public go() {
-        if (this.state === WatchState.RUNNING || this.state === WatchState.FINISHED) {
-            return;
-        }
-        if (this.state === WatchState.BEFORE_START) {
-            const synthes = new SpeechSynthesisUtterance(`${this.title}です`);
-            synthes.lang = "ja-JP";
-            speechSynthesis.speak(synthes);
+        switch (this.state) {
+            case WatchState.RUNNING:
+            case WatchState.FINISHED:
+                return;
+            case WatchState.BEFORE_START:
+                const synthes = new SpeechSynthesisUtterance(`${this.title}です`);
+                synthes.lang = "ja-JP";
+                speechSynthesis.speak(synthes);
+                break;
+            default:
+                break;
         }
         this.startedAt = new Date();
         this.timeoutIds.push(window.setTimeout(() => this.tick_(), 100));
@@ -37,8 +41,10 @@ export class StopWatch {
     }
 
     public pause() {
-        if (this.state === WatchState.SUSPEND || this.state === WatchState.FINISHED) {
-            return;
+        switch (this.state) {
+            case WatchState.SUSPEND:
+            case WatchState.FINISHED:
+                return;
         }
         this.remainTime1 = this.remainTime();
         this.startedAt = undefined;
