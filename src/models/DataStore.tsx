@@ -6,8 +6,9 @@ import {
   ListItemText
 } from "@material-ui/core";
 import { Pause, PlayArrow, Timer, TimerOff } from "@material-ui/icons";
-import { empty, lookup } from "fp-ts/lib/Array";
-import { Range, Record } from "immutable";
+import { array, empty, lookup, range, reverse } from "fp-ts/lib/Array";
+import { concat } from "fp-ts/lib/function";
+import { Record } from "immutable";
 import printf from "printf";
 import * as React from "react";
 import { StopWatch } from "./StopWatch";
@@ -48,12 +49,20 @@ export class DataStore extends Record(defaultDataStore) implements IDataStore {
   }
 
   public getCheckPoints(timerMenu: ITimerMenu): number[] {
-    return Range(1, 6)
-      .concat(Range(10, 60, 10))
-      .concat(Range(60, 15 * 60, 60))
-      .filter((e: number) => e < this.getDuration(timerMenu))
-      .reverse()
-      .toArray();
+    // const z = array.foldMap(getMonoid<number>())(
+    //   [[1, 2, 3], [4, 5, 6]],
+    //   identity
+    // );
+
+    return reverse(
+      array.filter(
+        concat(
+          concat(range(1, 6), range(1, 6).map(i => i * 10)),
+          range(1, 15).map(i => i * 60)
+        ),
+        e => e < this.getDuration(timerMenu)
+      )
+    );
   }
 
   public isTimerLeft(timerMenu: ITimerMenu) {
