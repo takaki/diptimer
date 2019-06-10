@@ -1,6 +1,7 @@
 import { array, range, reverse } from "fp-ts/lib/Array";
 import { concat } from "fp-ts/lib/function";
 import { RemainTime } from "./RemainTime";
+import { ITimerEntry } from "./TimerEntry";
 
 enum WatchState {
   BEFORE_START,
@@ -17,8 +18,7 @@ export class StopWatch {
   public startedAt?: Date = undefined;
 
   constructor(
-    public title: string,
-    seconds: number,
+    public timerEntry: ITimerEntry,
     public onTick: (sw: StopWatch) => void = () => {
       return;
     },
@@ -26,8 +26,8 @@ export class StopWatch {
       return;
     }
   ) {
-    this.remainTime1 = new RemainTime(seconds * 1000);
-    this.checkPoints = getCheckPoints(seconds);
+    this.remainTime1 = new RemainTime(timerEntry.duration * 1000);
+    this.checkPoints = getCheckPoints(timerEntry.duration);
   }
 
   public go() {
@@ -36,7 +36,9 @@ export class StopWatch {
       case WatchState.FINISHED:
         return;
       case WatchState.BEFORE_START:
-        const synthes = new SpeechSynthesisUtterance(`${this.title}です`);
+        const synthes = new SpeechSynthesisUtterance(
+          `${this.timerEntry.title}です`
+        );
         synthes.lang = "ja-JP";
         speechSynthesis.speak(synthes);
         break;

@@ -1,10 +1,7 @@
-import { MenuItem, Select } from "@material-ui/core";
 import { lookup, range } from "fp-ts/lib/Array";
 import { concat } from "fp-ts/lib/function";
-import * as React from "react";
 import { IMenuEntry } from "./MenuEntry";
 import { defaultTimerEntry, ITimerEntry } from "./TimerEntry";
-import { IDataStore } from "./DataStore";
 
 export interface ITimerMenu {
   menuEntries: IMenuEntry[];
@@ -41,7 +38,7 @@ export const defaultTimerMenu: ITimerMenu = {
   )
 };
 
-export const getTimer = (
+export const getTimerEntry = (
   menuIndex: number,
   timerIndex: number,
   self: ITimerMenu
@@ -49,31 +46,3 @@ export const getTimer = (
   lookup(menuIndex, self.menuEntries)
     .chain(a => lookup(timerIndex, a.timers))
     .getOrElse(defaultTimerEntry);
-
-export const selectMenu = (
-  menuIndex: number,
-  onMenuSelect: (ev: React.ChangeEvent<any>) => void,
-  self: ITimerMenu
-): JSX.Element => {
-  const selectItems = self.menuEntries
-    .map((e: IMenuEntry) => e.name)
-    .map((n, i) => (
-      <MenuItem value={i} key={n}>
-        {n}
-      </MenuItem>
-    ));
-  return (
-    <Select value={menuIndex} onChange={onMenuSelect}>
-      {selectItems}
-    </Select>
-  );
-};
-
-// export function remainTimeStr(menuIndex: number, self: ITimerMenu): string {
-//   return new RemainTime(
-//     lookup(menuIndex, self.menuEntries)
-//       .chain(a => lookup(0, a.timers))
-//       .map(a => a.duration * 1000)
-//       .getOrElse(0)
-//   ).format();
-// }

@@ -1,4 +1,4 @@
-import { defaultDataStore, IDataStore } from "./DataStore";
+import { defaultDataStore } from "./DataStore";
 import { defaultMenuEntry } from "./MenuEntry";
 import { defaultTimerEntry } from "./TimerEntry";
 

@@ -1,23 +1,36 @@
-import { Divider, List } from "@material-ui/core";
+import {
+  Button,
+  Divider,
+  IconButton,
+  List,
+  ListItem,
+  ListItemSecondaryAction,
+  ListItemText,
+  MenuItem,
+  Select
+} from "@material-ui/core";
+import { Pause, PlayArrow, Timer, TimerOff } from "@material-ui/icons";
+import { empty } from "fp-ts/lib/Array";
 // @ts-ignore
 // noinspection TypeScriptCheckImport,TypeScriptCheckImport
 import nosleepJs from "nosleep.js";
+import printf from "printf";
 import * as React from "react";
 import {
-  controlButtons,
   createStopWatch,
+  IDataStore,
   isTimerLeft,
   nextTimer,
-  selectMenu,
-  timeDisplay,
   timerList
 } from "../models/DataStore";
+import { IMenuEntry } from "../models/MenuEntry";
 import { StopWatch } from "../models/StopWatch";
+import { defaultTimerEntry, ITimerEntry } from "../models/TimerEntry";
 import { IGameTimerProps } from "../types";
 
 export class GameTimer extends React.Component<IGameTimerProps> {
   public noSleep = new nosleepJs();
-  private sw: StopWatch = new StopWatch("dummy", 0);
+  private sw: StopWatch = new StopWatch(defaultTimerEntry);
 
   public componentDidMount() {
     this.onChange(this.props.dataStore.menuIndex);
@@ -28,7 +41,7 @@ export class GameTimer extends React.Component<IGameTimerProps> {
       <div>
         {selectMenu(this.onMenuSelect, this.props.dataStore)}
         <List>
-          {timerList(this.props.dataStore)}
+          {timerListItem(this.props.dataStore)}
           <Divider />
           {timeDisplay(this.props.dataStore)}
           {controlButtons(
@@ -99,3 +112,78 @@ export class GameTimer extends React.Component<IGameTimerProps> {
   private onMenuSelect = (ev: React.ChangeEvent<any>) =>
     this.onChange(parseInt(ev.target.value, 10));
 }
+
+const timerListItem = (dataStore: IDataStore): JSX.Element[] =>
+  timerList(dataStore)
+    .map(a =>
+      a.timers.map((e: ITimerEntry, i) => (
+        <ListItem
+          button={true}
+          disabled={true}
+          className="timer-list"
+          data-is-current={i === dataStore.timerIndex}
+          key={i}
+        >
+          <ListItemText>
+            {printf(
+              "%s %d:%02d",
+              e.title,
+              Math.floor(e.duration / 60),
+              e.duration % 60
+            )}
+          </ListItemText>
+          <ListItemSecondaryAction>
+            <IconButton aria-label="Delete">
+              {i === dataStore.timerIndex ? <Timer /> : <TimerOff />}
+            </IconButton>
+          </ListItemSecondaryAction>
+        </ListItem>
+      ))
+    )
+    .getOrElse(empty);
+
+const controlButtons = (
+  onPlayClick: () => void,
+  onResetClick: () => void,
+  self: IDataStore
+): JSX.Element => (
+  <div className="control-buttons">
+    {self.finish ? (
+      ""
+    ) : (
+      <Button variant="contained" className="button" onClick={onPlayClick}>
+        {self.running ? <Pause /> : <PlayArrow />}
+        {self.label}
+      </Button>
+    )}
+    <Button
+      variant="contained"
+      className="button"
+      color="secondary"
+      onClick={onResetClick}
+    >
+      Reset
+    </Button>
+  </div>
+);
+
+const timeDisplay = (self: IDataStore): JSX.Element => (
+  <div className="time-display" data-is-finish={self.finish}>
+    <code>{self.time}</code>
+  </div>
+);
+
+const selectMenu = (
+  onMenuSelect: (ev: React.ChangeEvent<any>) => void,
+  self: IDataStore
+): JSX.Element => (
+  <Select value={self.menuIndex} onChange={onMenuSelect}>
+    {self.timerMenu.menuEntries
+      .map((e: IMenuEntry) => e.name)
+      .map((n, i) => (
+        <MenuItem value={i} key={n}>
+          {n}
+        </MenuItem>
+      ))}
+  </Select>
+);
