@@ -13,11 +13,12 @@ import printf from "printf";
 import * as React from "react";
 import { StopWatch } from "./StopWatch";
 import { defaultTimerEntry, ITimerEntry } from "./TimerEntry";
-import { ITimerMenu } from "./TimerMenu";
+import * as TM from "./TimerMenu";
 
 export interface IDataStore {
   menuIndex: number;
   timerIndex: number;
+  timerMenu: TM.ITimerMenu;
   time: string;
   label: string;
   running: boolean;
@@ -29,30 +30,24 @@ const timerIndex = Lens.fromProp<IDataStore>()("timerIndex");
 export const defaultDataStore: IDataStore = {
   menuIndex: 0,
   timerIndex: 0,
+  timerMenu: TM.defaultTimerMenu,
   time: "",
   label: "Go",
   running: false,
   finish: false
 };
 
-export const getTimer = (
-  timerMenu: ITimerMenu,
-  self: IDataStore
-): ITimerEntry =>
-  lookup(self.menuIndex, timerMenu.menuEntries)
+export const getTimer = (self: IDataStore): ITimerEntry =>
+  lookup(self.menuIndex, self.timerMenu.menuEntries)
     .chain(a => lookup(self.timerIndex, a.timers))
     .getOrElse(defaultTimerEntry);
 
-export const getTitle = (timerMenu: ITimerMenu, self: IDataStore): string =>
-  getTimer(timerMenu, self).title;
+export const getTitle = (self: IDataStore): string => getTimer(self).title;
 
-export const getDuration = (timerMenu: ITimerMenu, self: IDataStore): number =>
-  getTimer(timerMenu, self).duration;
+export const getDuration = (self: IDataStore): number =>
+  getTimer(self).duration;
 
-export const getCheckPoints = (
-  timerMenu: ITimerMenu,
-  self: IDataStore
-): number[] => {
+export const getCheckPoints = (self: IDataStore): number[] => {
   return reverse(
     array.filter(
       array.reduce(
@@ -64,25 +59,21 @@ export const getCheckPoints = (
         [] as number[],
         concat
       ),
-      e => e < getDuration(timerMenu, self)
+      e => e < getDuration(self)
     )
   );
 };
 
-export const isTimerLeft = (timerMenu: ITimerMenu, self: IDataStore): boolean =>
-  self.timerIndex + 1 <
-  lookup(self.menuIndex, timerMenu.menuEntries)
-    .map(a => a.timers.length)
-    .getOrElse(0);
+export const isTimerLeft = (self: IDataStore): boolean =>
+  lookup(self.menuIndex, self.timerMenu.menuEntries)
+    .map(a => self.timerIndex + 1 < a.timers.length)
+    .getOrElse(false);
 
 export const nextTimer = (self: IDataStore): IDataStore =>
   timerIndex.modify(a => a + 1)(self);
 
-export const timerList = (
-  timerMenu: ITimerMenu,
-  self: IDataStore
-): JSX.Element[] =>
-  lookup(self.menuIndex, timerMenu.menuEntries)
+export const timerList = (self: IDataStore): JSX.Element[] =>
+  lookup(self.menuIndex, self.timerMenu.menuEntries)
     .map(a =>
       a.timers.map((e: ITimerEntry, i) => (
         <ListItem
@@ -142,14 +133,19 @@ export const controlButtons = (
 );
 
 export const createStopWatch = (
-  timerMenu: ITimerMenu,
   onTick: (sw: StopWatch) => void,
   onFinish: (sw: StopWatch) => void,
   self: IDataStore
-): StopWatch => new StopWatch(
-  getTitle(timerMenu, self),
-  getDuration(timerMenu, self),
-  getCheckPoints(timerMenu, self),
-  onTick,
-  onFinish
-);
+): StopWatch =>
+  new StopWatch(
+    getTitle(self),
+    getDuration(self),
+    getCheckPoints(self),
+    onTick,
+    onFinish
+  );
+
+export const selectMenu = (
+  onMenuSelect: (ev: React.ChangeEvent<any>) => void,
+  self: IDataStore
+): JSX.Element => TM.selectMenu(self.menuIndex, onMenuSelect, self.timerMenu);

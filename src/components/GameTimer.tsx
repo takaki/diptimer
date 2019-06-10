@@ -8,32 +8,27 @@ import {
   createStopWatch,
   isTimerLeft,
   nextTimer,
+  selectMenu,
   timeDisplay,
   timerList
 } from "../models/DataStore";
 import { StopWatch } from "../models/StopWatch";
-import { defaultTimerMenu, ITimerMenu, selectMenu } from "../models/TimerMenu";
 import { IGameTimerProps } from "../types";
 
 export class GameTimer extends React.Component<IGameTimerProps> {
   public noSleep = new nosleepJs();
-  public timerMenu: ITimerMenu = defaultTimerMenu;
   private sw: StopWatch = new StopWatch("dummy", 0, []);
 
   public componentDidMount() {
-    this.onChange(this.props.dataStore!.menuIndex);
+    this.onChange(this.props.dataStore.menuIndex);
   }
 
   public render() {
     return (
       <div>
-        {selectMenu(
-          this.props.dataStore.menuIndex,
-          this.onMenuSelect,
-          this.timerMenu
-        )}
+        {selectMenu(this.onMenuSelect, this.props.dataStore)}
         <List>
-          {timerList(this.timerMenu, this.props.dataStore)}
+          {timerList(this.props.dataStore)}
           <Divider />
           {timeDisplay(this.props.dataStore)}
           {controlButtons(
@@ -60,10 +55,9 @@ export class GameTimer extends React.Component<IGameTimerProps> {
       this.props.setRemainTime(sw.remainTimeString());
     };
     const onFinish = (sw: StopWatch) => {
-      if (isTimerLeft(this.timerMenu, this.props.dataStore)) {
+      if (isTimerLeft(this.props.dataStore)) {
         // FIXME
         this.sw = createStopWatch(
-          this.timerMenu,
           onTick,
           onFinish,
           nextTimer(this.props.dataStore)
@@ -79,8 +73,8 @@ export class GameTimer extends React.Component<IGameTimerProps> {
     };
     this.sw.pause();
     this.noSleep.disable();
-    // FIXME
-    this.sw = createStopWatch(this.timerMenu, onTick, onFinish, {
+    // FIXME propsがアップデートされるのはcomponentDidMount()の終了後
+    this.sw = createStopWatch(onTick, onFinish, {
       ...this.props.dataStore,
       menuIndex,
       timerIndex: 0
@@ -100,11 +94,8 @@ export class GameTimer extends React.Component<IGameTimerProps> {
     }
   };
 
-  private onResetClick = () => {
-    this.onChange(this.props.dataStore.menuIndex);
-  };
+  private onResetClick = () => this.onChange(this.props.dataStore.menuIndex);
 
-  private onMenuSelect = (ev: React.ChangeEvent<any>) => {
+  private onMenuSelect = (ev: React.ChangeEvent<any>) =>
     this.onChange(parseInt(ev.target.value, 10));
-  };
 }
