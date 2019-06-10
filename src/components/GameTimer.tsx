@@ -17,7 +17,7 @@ import { IGameTimerProps } from "../types";
 
 export class GameTimer extends React.Component<IGameTimerProps> {
   public noSleep = new nosleepJs();
-  private sw: StopWatch = new StopWatch("dummy", 0, []);
+  private sw: StopWatch = new StopWatch("dummy", 0);
 
   public componentDidMount() {
     this.onChange(this.props.dataStore.menuIndex);

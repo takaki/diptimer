@@ -6,13 +6,12 @@ import {
   ListItemText
 } from "@material-ui/core";
 import { Pause, PlayArrow, Timer, TimerOff } from "@material-ui/icons";
-import { array, empty, lookup, range, reverse } from "fp-ts/lib/Array";
-import { concat } from "fp-ts/lib/function";
+import { empty, lookup } from "fp-ts/lib/Array";
 import { Lens } from "monocle-ts";
 import printf from "printf";
 import * as React from "react";
 import { StopWatch } from "./StopWatch";
-import { defaultTimerEntry, ITimerEntry } from "./TimerEntry";
+import { ITimerEntry } from "./TimerEntry";
 import * as TM from "./TimerMenu";
 
 export interface IDataStore {
@@ -35,33 +34,6 @@ export const defaultDataStore: IDataStore = {
   label: "Go",
   running: false,
   finish: false
-};
-
-export const getTimer = (self: IDataStore): ITimerEntry =>
-  lookup(self.menuIndex, self.timerMenu.menuEntries)
-    .chain(a => lookup(self.timerIndex, a.timers))
-    .getOrElse(defaultTimerEntry);
-
-export const getTitle = (self: IDataStore): string => getTimer(self).title;
-
-export const getDuration = (self: IDataStore): number =>
-  getTimer(self).duration;
-
-export const getCheckPoints = (self: IDataStore): number[] => {
-  return reverse(
-    array.filter(
-      array.reduce(
-        [
-          range(1, 6),
-          range(1, 6).map(i => i * 10),
-          range(1, 15).map(i => i * 60)
-        ],
-        [] as number[],
-        concat
-      ),
-      e => e < getDuration(self)
-    )
-  );
 };
 
 export const isTimerLeft = (self: IDataStore): boolean =>
@@ -137,15 +109,16 @@ export const createStopWatch = (
   onFinish: (sw: StopWatch) => void,
   self: IDataStore
 ): StopWatch =>
-  new StopWatch(
-    getTitle(self),
-    getDuration(self),
-    getCheckPoints(self),
-    onTick,
-    onFinish
-  );
+  new StopWatch(getTitle(self), getDuration(self), onTick, onFinish);
 
 export const selectMenu = (
   onMenuSelect: (ev: React.ChangeEvent<any>) => void,
   self: IDataStore
 ): JSX.Element => TM.selectMenu(self.menuIndex, onMenuSelect, self.timerMenu);
+
+const getTimer = (self: IDataStore): ITimerEntry =>
+  TM.getTimer(self.menuIndex, self.timerIndex, self.timerMenu);
+
+const getTitle = (self: IDataStore): string => getTimer(self).title;
+
+const getDuration = (self: IDataStore): number => getTimer(self).duration;

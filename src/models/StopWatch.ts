@@ -1,3 +1,5 @@
+import { array, range, reverse } from "fp-ts/lib/Array";
+import { concat } from "fp-ts/lib/function";
 import { RemainTime } from "./RemainTime";
 
 enum WatchState {
@@ -9,6 +11,7 @@ enum WatchState {
 
 export class StopWatch {
   public remainTime1: RemainTime;
+  public checkPoints: number[];
   public timeoutIds: number[] = [];
   public state: WatchState = WatchState.BEFORE_START;
   public startedAt?: Date = undefined;
@@ -16,7 +19,6 @@ export class StopWatch {
   constructor(
     public title: string,
     seconds: number,
-    public checkPoints: number[],
     public onTick: (sw: StopWatch) => void = () => {
       return;
     },
@@ -25,6 +27,7 @@ export class StopWatch {
     }
   ) {
     this.remainTime1 = new RemainTime(seconds * 1000);
+    this.checkPoints = getCheckPoints(seconds);
   }
 
   public go() {
@@ -88,3 +91,20 @@ export class StopWatch {
     );
   }
 }
+
+const getCheckPoints = (limit: number): number[] => {
+  return reverse(
+    array.filter(
+      array.reduce(
+        [
+          range(1, 6),
+          range(1, 6).map(i => i * 10),
+          range(1, 15).map(i => i * 60)
+        ],
+        [] as number[],
+        concat
+      ),
+      e => e < limit
+    )
+  );
+};

@@ -1,8 +1,10 @@
 import { MenuItem, Select } from "@material-ui/core";
-import { range } from "fp-ts/lib/Array";
+import { lookup, range } from "fp-ts/lib/Array";
 import { concat } from "fp-ts/lib/function";
 import * as React from "react";
 import { IMenuEntry } from "./MenuEntry";
+import { defaultTimerEntry, ITimerEntry } from "./TimerEntry";
+import { IDataStore } from "./DataStore";
 
 export interface ITimerMenu {
   menuEntries: IMenuEntry[];
@@ -38,6 +40,15 @@ export const defaultTimerMenu: ITimerMenu = {
     }))
   )
 };
+
+export const getTimer = (
+  menuIndex: number,
+  timerIndex: number,
+  self: ITimerMenu
+): ITimerEntry =>
+  lookup(menuIndex, self.menuEntries)
+    .chain(a => lookup(timerIndex, a.timers))
+    .getOrElse(defaultTimerEntry);
 
 export const selectMenu = (
   menuIndex: number,
