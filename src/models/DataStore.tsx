@@ -35,58 +35,54 @@ export const defaultDataStore: IDataStore = {
   finish: false
 };
 
-export function getTimer(timerMenu: ITimerMenu, self: IDataStore): ITimerEntry {
-  return lookup(self.menuIndex, timerMenu.menuEntries)
-    .chain(a => lookup(self.timerIndex, a.timers))
-    .getOrElse(defaultTimerEntry);
-}
-
-export function getTitle(timerMenu: ITimerMenu, self: IDataStore) {
-  return getTimer(timerMenu, self).title;
-}
-
-export function getDuration(timerMenu: ITimerMenu, self: IDataStore) {
-  return getTimer(timerMenu, self).duration;
-}
-
-export function getCheckPoints(
+export const getTimer = (
   timerMenu: ITimerMenu,
   self: IDataStore
-): number[] {
-  // const z = array.foldMap(getMonoid<number>())(
-  //   [[1, 2, 3], [4, 5, 6]],
-  //   identity
-  // );
+): ITimerEntry =>
+  lookup(self.menuIndex, timerMenu.menuEntries)
+    .chain(a => lookup(self.timerIndex, a.timers))
+    .getOrElse(defaultTimerEntry);
 
+export const getTitle = (timerMenu: ITimerMenu, self: IDataStore): string =>
+  getTimer(timerMenu, self).title;
+
+export const getDuration = (timerMenu: ITimerMenu, self: IDataStore): number =>
+  getTimer(timerMenu, self).duration;
+
+export const getCheckPoints = (
+  timerMenu: ITimerMenu,
+  self: IDataStore
+): number[] => {
   return reverse(
     array.filter(
-      concat(
-        concat(range(1, 6), range(1, 6).map(i => i * 10)),
-        range(1, 15).map(i => i * 60)
+      array.reduce(
+        [
+          range(1, 6),
+          range(1, 6).map(i => i * 10),
+          range(1, 15).map(i => i * 60)
+        ],
+        [] as number[],
+        concat
       ),
       e => e < getDuration(timerMenu, self)
     )
   );
-}
+};
 
-export function isTimerLeft(timerMenu: ITimerMenu, self: IDataStore) {
-  return (
-    self.timerIndex + 1 <
-    lookup(self.menuIndex, timerMenu.menuEntries)
-      .map(a => a.timers.length)
-      .getOrElse(0)
-  );
-}
+export const isTimerLeft = (timerMenu: ITimerMenu, self: IDataStore): boolean =>
+  self.timerIndex + 1 <
+  lookup(self.menuIndex, timerMenu.menuEntries)
+    .map(a => a.timers.length)
+    .getOrElse(0);
 
-export function nextTimer(self: IDataStore): IDataStore {
-  return timerIndex.modify(a => a + 1)(self);
-}
+export const nextTimer = (self: IDataStore): IDataStore =>
+  timerIndex.modify(a => a + 1)(self);
 
-export function timerList(
+export const timerList = (
   timerMenu: ITimerMenu,
   self: IDataStore
-): JSX.Element[] {
-  return lookup(self.menuIndex, timerMenu.menuEntries)
+): JSX.Element[] =>
+  lookup(self.menuIndex, timerMenu.menuEntries)
     .map(a =>
       a.timers.map((e: ITimerEntry, i) => (
         <ListItem
@@ -113,55 +109,47 @@ export function timerList(
       ))
     )
     .getOrElse(empty);
-}
 
-export function timeDisplay(self: IDataStore) {
-  return (
-    <div className="time-display" data-is-finish={self.finish}>
-      <code>{self.time}</code>
-    </div>
-  );
-}
+export const timeDisplay = (self: IDataStore): JSX.Element => (
+  <div className="time-display" data-is-finish={self.finish}>
+    <code>{self.time}</code>
+  </div>
+);
 
-export function controlButtons(
+export const controlButtons = (
   onPlayClick: () => void,
   onResetClick: () => void,
   self: IDataStore
-) {
-  const playButton = self.finish ? (
-    ""
-  ) : (
-    <Button variant="contained" className="button" onClick={onPlayClick}>
-      {self.running ? <Pause /> : <PlayArrow />}
-      {self.label}
-    </Button>
-  );
-  return (
-    <div className="control-buttons">
-      {playButton}
-      <Button
-        variant="contained"
-        className="button"
-        color="secondary"
-        onClick={onResetClick}
-      >
-        Reset
+): JSX.Element => (
+  <div className="control-buttons">
+    {self.finish ? (
+      ""
+    ) : (
+      <Button variant="contained" className="button" onClick={onPlayClick}>
+        {self.running ? <Pause /> : <PlayArrow />}
+        {self.label}
       </Button>
-    </div>
-  );
-}
+    )}
+    <Button
+      variant="contained"
+      className="button"
+      color="secondary"
+      onClick={onResetClick}
+    >
+      Reset
+    </Button>
+  </div>
+);
 
-export function createStopWatch(
+export const createStopWatch = (
   timerMenu: ITimerMenu,
   onTick: (sw: StopWatch) => void,
   onFinish: (sw: StopWatch) => void,
   self: IDataStore
-): StopWatch {
-  return new StopWatch(
-    getTitle(timerMenu, self),
-    getDuration(timerMenu, self),
-    getCheckPoints(timerMenu, self),
-    onTick,
-    onFinish
-  );
-}
+): StopWatch => new StopWatch(
+  getTitle(timerMenu, self),
+  getDuration(timerMenu, self),
+  getCheckPoints(timerMenu, self),
+  onTick,
+  onFinish
+);

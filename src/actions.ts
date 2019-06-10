@@ -45,44 +45,32 @@ export type ModelAction =
   | ISetFinish
   | ISetNextTimer;
 
-export function setRemainTime(remainTime: string): ISetRemainTime {
-  return {
-    type: SET_REMAIN_TIME,
-    payload: {
-      remainTime
-    }
-  };
-}
+export const setRemainTime = (remainTime: string): ISetRemainTime => ({
+  type: SET_REMAIN_TIME,
+  payload: {
+    remainTime
+  }
+});
 
-export function execPause(): IExecPause {
-  return {
-    type: EXEC_PAUSE
-  };
-}
+export const execPause = (): IExecPause => ({
+  type: EXEC_PAUSE
+});
 
-export function execGo(): IExecGo {
-  return {
-    type: EXEC_GO
-  };
-}
+export const execGo = (): IExecGo => ({
+  type: EXEC_GO
+});
 
-export function setMenuIndex(menuIndex: number): ISetMenuIndex {
-  return {
-    type: SET_MENU_INDEX,
-    payload: {
-      menuIndex
-    }
-  };
-}
+export const setMenuIndex = (menuIndex: number): ISetMenuIndex => ({
+  type: SET_MENU_INDEX,
+  payload: {
+    menuIndex
+  }
+});
 
-export function setFinish(): ISetFinish {
-  return {
-    type: SET_FINISH
-  };
-}
+export const setFinish = (): ISetFinish => ({
+  type: SET_FINISH
+});
 
-export function setNextTimer(): ISetNextTimer {
-  return {
-    type: SET_NEXT_TIMER
-  };
-}
+export const setNextTimer = (): ISetNextTimer => ({
+  type: SET_NEXT_TIMER
+});

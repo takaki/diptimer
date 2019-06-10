@@ -9,10 +9,10 @@ import {
 } from "./constants";
 import { defaultDataStore, IDataStore, nextTimer } from "./models/DataStore";
 
-export function modelReducer(
+export const modelReducer = (
   state: IDataStore = defaultDataStore,
   action: ModelAction
-): IDataStore {
+): IDataStore => {
   switch (action.type) {
     case SET_REMAIN_TIME:
       return { ...state, time: action.payload.remainTime };
@@ -37,4 +37,4 @@ export function modelReducer(
       return state;
     // throw new Error();
   }
-}
+};

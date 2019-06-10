@@ -1,9 +1,8 @@
 import { MenuItem, Select } from "@material-ui/core";
-import { lookup, range } from "fp-ts/lib/Array";
+import { range } from "fp-ts/lib/Array";
 import { concat } from "fp-ts/lib/function";
 import * as React from "react";
 import { IMenuEntry } from "./MenuEntry";
-import { RemainTime } from "./RemainTime";
 
 export interface ITimerMenu {
   menuEntries: IMenuEntry[];
@@ -40,11 +39,11 @@ export const defaultTimerMenu: ITimerMenu = {
   )
 };
 
-export function selectMenu(
+export const selectMenu = (
   menuIndex: number,
   onMenuSelect: (ev: React.ChangeEvent<any>) => void,
   self: ITimerMenu
-): JSX.Element {
+): JSX.Element => {
   const selectItems = self.menuEntries
     .map((e: IMenuEntry) => e.name)
     .map((n, i) => (
@@ -57,13 +56,13 @@ export function selectMenu(
       {selectItems}
     </Select>
   );
-}
+};
 
-export function remainTimeStr(menuIndex: number, self: ITimerMenu): string {
-  return new RemainTime(
-    lookup(menuIndex, self.menuEntries)
-      .chain(a => lookup(0, a.timers))
-      .map(a => a.duration * 1000)
-      .getOrElse(0)
-  ).format();
-}
+// export function remainTimeStr(menuIndex: number, self: ITimerMenu): string {
+//   return new RemainTime(
+//     lookup(menuIndex, self.menuEntries)
+//       .chain(a => lookup(0, a.timers))
+//       .map(a => a.duration * 1000)
+//       .getOrElse(0)
+//   ).format();
+// }
