@@ -1,14 +1,12 @@
-import { List, Record } from "immutable";
-import { TimerEntry } from "./TimerEntry";
+import { List } from "immutable";
+import { ITimerEntry } from "./TimerEntry";
 
-interface IMenuEntry {
-    name: string;
-    timers: List<TimerEntry>;
+export interface IMenuEntry {
+  name: string;
+  timers: List<ITimerEntry>;
 }
 
-const defaultMenuEntry: IMenuEntry = {
-    name: "",
-    timers: List(),
+export const defaultMenuEntry: IMenuEntry = {
+  name: "",
+  timers: List()
 };
-
-export class MenuEntry extends Record(defaultMenuEntry) implements IMenuEntry {}
