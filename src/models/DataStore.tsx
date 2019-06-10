@@ -6,12 +6,13 @@ import {
   ListItemText
 } from "@material-ui/core";
 import { Pause, PlayArrow, Timer, TimerOff } from "@material-ui/icons";
+import { empty, lookup } from "fp-ts/lib/Array";
 import { Range, Record } from "immutable";
 import printf from "printf";
 import * as React from "react";
 import { StopWatch } from "./StopWatch";
-import { ITimerEntry } from "./TimerEntry";
-import { TimerMenu } from "./TimerMenu";
+import { defaultTimerEntry, ITimerEntry } from "./TimerEntry";
+import { ITimerMenu } from "./TimerMenu";
 
 interface IDataStore {
   menuIndex: number;
@@ -32,21 +33,21 @@ const defaultDataStore: IDataStore = {
 };
 
 export class DataStore extends Record(defaultDataStore) implements IDataStore {
-  public getTimer(timerMenu: TimerMenu) {
-    return timerMenu.menuEntries
-      .get(this.menuIndex)!
-      .timers.get(this.timerIndex)!;
+  public getTimer(timerMenu: ITimerMenu): ITimerEntry {
+    return lookup(this.menuIndex, timerMenu.menuEntries)
+      .chain(a => lookup(this.timerIndex, a.timers))
+      .getOrElse(defaultTimerEntry);
   }
 
-  public getTitle(timerMenu: TimerMenu) {
+  public getTitle(timerMenu: ITimerMenu) {
     return this.getTimer(timerMenu).title;
   }
 
-  public getDuration(timerMenu: TimerMenu) {
+  public getDuration(timerMenu: ITimerMenu) {
     return this.getTimer(timerMenu).duration;
   }
 
-  public getCheckPoints(timerMenu: TimerMenu): number[] {
+  public getCheckPoints(timerMenu: ITimerMenu): number[] {
     return Range(1, 6)
       .concat(Range(10, 60, 10))
       .concat(Range(60, 15 * 60, 60))
@@ -55,10 +56,12 @@ export class DataStore extends Record(defaultDataStore) implements IDataStore {
       .toArray();
   }
 
-  public isTimerLeft(timerMenu: TimerMenu) {
+  public isTimerLeft(timerMenu: ITimerMenu) {
     return (
       this.timerIndex + 1 <
-      timerMenu.menuEntries.get(this.menuIndex)!.timers.size
+      lookup(this.menuIndex, timerMenu.menuEntries)
+        .map(a => a.timers.length)
+        .getOrElse(0)
     );
   }
 
@@ -66,32 +69,34 @@ export class DataStore extends Record(defaultDataStore) implements IDataStore {
     return this.set("timerIndex", this.timerIndex + 1);
   }
 
-  public timerList(timerMenu: TimerMenu) {
-    return timerMenu.menuEntries
-      .get(this.menuIndex)!
-      .timers.map((e: ITimerEntry, i) => (
-        <ListItem
-          button={true}
-          disabled={true}
-          className="timer-list"
-          data-is-current={i === this.timerIndex}
-          key={i}
-        >
-          <ListItemText>
-            {printf(
-              "%s %d:%02d",
-              e.title,
-              Math.floor(e.duration / 60),
-              e.duration % 60
-            )}
-          </ListItemText>
-          <ListItemSecondaryAction>
-            <IconButton aria-label="Delete">
-              {i === this.timerIndex ? <Timer /> : <TimerOff />}
-            </IconButton>
-          </ListItemSecondaryAction>
-        </ListItem>
-      ));
+  public timerList(timerMenu: ITimerMenu): JSX.Element[] {
+    return lookup(this.menuIndex, timerMenu.menuEntries)
+      .map(a =>
+        a.timers.map((e: ITimerEntry, i) => (
+          <ListItem
+            button={true}
+            disabled={true}
+            className="timer-list"
+            data-is-current={i === this.timerIndex}
+            key={i}
+          >
+            <ListItemText>
+              {printf(
+                "%s %d:%02d",
+                e.title,
+                Math.floor(e.duration / 60),
+                e.duration % 60
+              )}
+            </ListItemText>
+            <ListItemSecondaryAction>
+              <IconButton aria-label="Delete">
+                {i === this.timerIndex ? <Timer /> : <TimerOff />}
+              </IconButton>
+            </ListItemSecondaryAction>
+          </ListItem>
+        ))
+      )
+      .getOrElse(empty);
   }
 
   public timeDisplay() {
@@ -127,7 +132,7 @@ export class DataStore extends Record(defaultDataStore) implements IDataStore {
   }
 
   public createStopWatch(
-    timerMenu: TimerMenu,
+    timerMenu: ITimerMenu,
     onTick: (sw: StopWatch) => void,
     onFinish: (sw: StopWatch) => void
   ): StopWatch {

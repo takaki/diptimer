@@ -1,15 +1,15 @@
 import { Divider, List } from "@material-ui/core";
-// noinspection TypeScriptCheckImport,TypeScriptCheckImport
 // @ts-ignore
+// noinspection TypeScriptCheckImport,TypeScriptCheckImport
 import nosleepJs from "nosleep.js";
 import * as React from "react";
 import { StopWatch } from "../models/StopWatch";
-import { TimerMenu } from "../models/TimerMenu";
+import { defaultTimerMenu, ITimerMenu, selectMenu } from "../models/TimerMenu";
 import { IGameTimerProps } from "../types";
 
 export class GameTimer extends React.Component<IGameTimerProps> {
   public noSleep = new nosleepJs();
-  public timerMenu: TimerMenu = new TimerMenu();
+  public timerMenu: ITimerMenu = defaultTimerMenu;
   private sw: StopWatch = new StopWatch("dummy", 0, []);
 
   public componentDidMount() {
@@ -19,9 +19,10 @@ export class GameTimer extends React.Component<IGameTimerProps> {
   public render() {
     return (
       <div>
-        {this.timerMenu.selectMenu(
+        {selectMenu(
           this.props.dataStore.menuIndex,
-          this.onMenuSelect
+          this.onMenuSelect,
+          this.timerMenu
         )}
         <List>
           {this.props.dataStore.timerList(this.timerMenu)}
