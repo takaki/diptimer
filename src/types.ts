@@ -1,11 +1,11 @@
-import { DataStore } from "./models/DataStore";
+import { IDataStore } from "./models/DataStore";
 
 export interface IGameTimerProps {
-    dataStore: DataStore;
-    setRemainTime: (s: string) => void;
-    execPause: () => void;
-    execGo: () => void;
-    setMenuIndex: (i: number) => void;
-    setFinish: () => void;
-    setNextTimer: () => void;
+  dataStore: IDataStore;
+  setRemainTime: (s: string) => void;
+  execPause: () => void;
+  execGo: () => void;
+  setMenuIndex: (i: number) => void;
+  setFinish: () => void;
+  setNextTimer: () => void;
 }

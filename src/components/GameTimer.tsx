@@ -3,6 +3,14 @@ import { Divider, List } from "@material-ui/core";
 // noinspection TypeScriptCheckImport,TypeScriptCheckImport
 import nosleepJs from "nosleep.js";
 import * as React from "react";
+import {
+  controlButtons,
+  createStopWatch,
+  isTimerLeft,
+  nextTimer,
+  timeDisplay,
+  timerList
+} from "../models/DataStore";
 import { StopWatch } from "../models/StopWatch";
 import { defaultTimerMenu, ITimerMenu, selectMenu } from "../models/TimerMenu";
 import { IGameTimerProps } from "../types";
@@ -25,12 +33,13 @@ export class GameTimer extends React.Component<IGameTimerProps> {
           this.timerMenu
         )}
         <List>
-          {this.props.dataStore.timerList(this.timerMenu)}
+          {timerList(this.timerMenu, this.props.dataStore)}
           <Divider />
-          {this.props.dataStore.timeDisplay()}
-          {this.props.dataStore.controlButtons(
+          {timeDisplay(this.props.dataStore)}
+          {controlButtons(
             this.onPlayClick,
-            this.onResetClick
+            this.onResetClick,
+            this.props.dataStore
           )}
         </List>
       </div>
@@ -51,11 +60,14 @@ export class GameTimer extends React.Component<IGameTimerProps> {
       this.props.setRemainTime(sw.remainTimeString());
     };
     const onFinish = (sw: StopWatch) => {
-      if (this.props.dataStore.isTimerLeft(this.timerMenu)) {
+      if (isTimerLeft(this.timerMenu, this.props.dataStore)) {
         // FIXME
-        this.sw = this.props.dataStore
-          .nextTimer()
-          .createStopWatch(this.timerMenu, onTick, onFinish);
+        this.sw = createStopWatch(
+          this.timerMenu,
+          onTick,
+          onFinish,
+          nextTimer(this.props.dataStore)
+        );
         this.sw.go();
         this.props.setNextTimer();
       } else {
@@ -68,12 +80,11 @@ export class GameTimer extends React.Component<IGameTimerProps> {
     this.sw.pause();
     this.noSleep.disable();
     // FIXME
-    this.sw = this.props.dataStore
-      .merge({
-        menuIndex,
-        timerIndex: 0
-      })
-      .createStopWatch(this.timerMenu, onTick, onFinish);
+    this.sw = createStopWatch(this.timerMenu, onTick, onFinish, {
+      ...this.props.dataStore,
+      menuIndex,
+      timerIndex: 0
+    });
     this.props.setMenuIndex(menuIndex);
     this.props.setRemainTime(this.sw.remainTimeString());
   }

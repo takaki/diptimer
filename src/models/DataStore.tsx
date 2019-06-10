@@ -8,14 +8,14 @@ import {
 import { Pause, PlayArrow, Timer, TimerOff } from "@material-ui/icons";
 import { array, empty, lookup, range, reverse } from "fp-ts/lib/Array";
 import { concat } from "fp-ts/lib/function";
-import { Record } from "immutable";
+import { Lens } from "monocle-ts";
 import printf from "printf";
 import * as React from "react";
 import { StopWatch } from "./StopWatch";
 import { defaultTimerEntry, ITimerEntry } from "./TimerEntry";
 import { ITimerMenu } from "./TimerMenu";
 
-interface IDataStore {
+export interface IDataStore {
   menuIndex: number;
   timerIndex: number;
   time: string;
@@ -24,7 +24,9 @@ interface IDataStore {
   finish: boolean;
 }
 
-const defaultDataStore: IDataStore = {
+const timerIndex = Lens.fromProp<IDataStore>()("timerIndex");
+
+export const defaultDataStore: IDataStore = {
   menuIndex: 0,
   timerIndex: 0,
   time: "",
@@ -33,124 +35,133 @@ const defaultDataStore: IDataStore = {
   finish: false
 };
 
-export class DataStore extends Record(defaultDataStore) implements IDataStore {
-  public getTimer(timerMenu: ITimerMenu): ITimerEntry {
-    return lookup(this.menuIndex, timerMenu.menuEntries)
-      .chain(a => lookup(this.timerIndex, a.timers))
-      .getOrElse(defaultTimerEntry);
-  }
+export function getTimer(timerMenu: ITimerMenu, self: IDataStore): ITimerEntry {
+  return lookup(self.menuIndex, timerMenu.menuEntries)
+    .chain(a => lookup(self.timerIndex, a.timers))
+    .getOrElse(defaultTimerEntry);
+}
 
-  public getTitle(timerMenu: ITimerMenu) {
-    return this.getTimer(timerMenu).title;
-  }
+export function getTitle(timerMenu: ITimerMenu, self: IDataStore) {
+  return getTimer(timerMenu, self).title;
+}
 
-  public getDuration(timerMenu: ITimerMenu) {
-    return this.getTimer(timerMenu).duration;
-  }
+export function getDuration(timerMenu: ITimerMenu, self: IDataStore) {
+  return getTimer(timerMenu, self).duration;
+}
 
-  public getCheckPoints(timerMenu: ITimerMenu): number[] {
-    // const z = array.foldMap(getMonoid<number>())(
-    //   [[1, 2, 3], [4, 5, 6]],
-    //   identity
-    // );
+export function getCheckPoints(
+  timerMenu: ITimerMenu,
+  self: IDataStore
+): number[] {
+  // const z = array.foldMap(getMonoid<number>())(
+  //   [[1, 2, 3], [4, 5, 6]],
+  //   identity
+  // );
 
-    return reverse(
-      array.filter(
-        concat(
-          concat(range(1, 6), range(1, 6).map(i => i * 10)),
-          range(1, 15).map(i => i * 60)
-        ),
-        e => e < this.getDuration(timerMenu)
-      )
-    );
-  }
+  return reverse(
+    array.filter(
+      concat(
+        concat(range(1, 6), range(1, 6).map(i => i * 10)),
+        range(1, 15).map(i => i * 60)
+      ),
+      e => e < getDuration(timerMenu, self)
+    )
+  );
+}
 
-  public isTimerLeft(timerMenu: ITimerMenu) {
-    return (
-      this.timerIndex + 1 <
-      lookup(this.menuIndex, timerMenu.menuEntries)
-        .map(a => a.timers.length)
-        .getOrElse(0)
-    );
-  }
+export function isTimerLeft(timerMenu: ITimerMenu, self: IDataStore) {
+  return (
+    self.timerIndex + 1 <
+    lookup(self.menuIndex, timerMenu.menuEntries)
+      .map(a => a.timers.length)
+      .getOrElse(0)
+  );
+}
 
-  public nextTimer() {
-    return this.set("timerIndex", this.timerIndex + 1);
-  }
+export function nextTimer(self: IDataStore): IDataStore {
+  return timerIndex.modify(a => a + 1)(self);
+}
 
-  public timerList(timerMenu: ITimerMenu): JSX.Element[] {
-    return lookup(this.menuIndex, timerMenu.menuEntries)
-      .map(a =>
-        a.timers.map((e: ITimerEntry, i) => (
-          <ListItem
-            button={true}
-            disabled={true}
-            className="timer-list"
-            data-is-current={i === this.timerIndex}
-            key={i}
-          >
-            <ListItemText>
-              {printf(
-                "%s %d:%02d",
-                e.title,
-                Math.floor(e.duration / 60),
-                e.duration % 60
-              )}
-            </ListItemText>
-            <ListItemSecondaryAction>
-              <IconButton aria-label="Delete">
-                {i === this.timerIndex ? <Timer /> : <TimerOff />}
-              </IconButton>
-            </ListItemSecondaryAction>
-          </ListItem>
-        ))
-      )
-      .getOrElse(empty);
-  }
-
-  public timeDisplay() {
-    return (
-      <div className="time-display" data-is-finish={this.finish}>
-        <code>{this.time}</code>
-      </div>
-    );
-  }
-
-  public controlButtons(onPlayClick: () => void, onResetClick: () => void) {
-    const playButton = this.finish ? (
-      ""
-    ) : (
-      <Button variant="contained" className="button" onClick={onPlayClick}>
-        {this.running ? <Pause /> : <PlayArrow />}
-        {this.label}
-      </Button>
-    );
-    return (
-      <div className="control-buttons">
-        {playButton}
-        <Button
-          variant="contained"
-          className="button"
-          color="secondary"
-          onClick={onResetClick}
+export function timerList(
+  timerMenu: ITimerMenu,
+  self: IDataStore
+): JSX.Element[] {
+  return lookup(self.menuIndex, timerMenu.menuEntries)
+    .map(a =>
+      a.timers.map((e: ITimerEntry, i) => (
+        <ListItem
+          button={true}
+          disabled={true}
+          className="timer-list"
+          data-is-current={i === self.timerIndex}
+          key={i}
         >
-          Reset
-        </Button>
-      </div>
-    );
-  }
+          <ListItemText>
+            {printf(
+              "%s %d:%02d",
+              e.title,
+              Math.floor(e.duration / 60),
+              e.duration % 60
+            )}
+          </ListItemText>
+          <ListItemSecondaryAction>
+            <IconButton aria-label="Delete">
+              {i === self.timerIndex ? <Timer /> : <TimerOff />}
+            </IconButton>
+          </ListItemSecondaryAction>
+        </ListItem>
+      ))
+    )
+    .getOrElse(empty);
+}
 
-  public createStopWatch(
-    timerMenu: ITimerMenu,
-    onTick: (sw: StopWatch) => void,
-    onFinish: (sw: StopWatch) => void
-  ): StopWatch {
-    return new StopWatch(
-      this.getTitle(timerMenu),
-      this.getDuration(timerMenu),
-      this.getCheckPoints(timerMenu),
-      onTick,
-      onFinish
-    );
-  }
+export function timeDisplay(self: IDataStore) {
+  return (
+    <div className="time-display" data-is-finish={self.finish}>
+      <code>{self.time}</code>
+    </div>
+  );
+}
+
+export function controlButtons(
+  onPlayClick: () => void,
+  onResetClick: () => void,
+  self: IDataStore
+) {
+  const playButton = self.finish ? (
+    ""
+  ) : (
+    <Button variant="contained" className="button" onClick={onPlayClick}>
+      {self.running ? <Pause /> : <PlayArrow />}
+      {self.label}
+    </Button>
+  );
+  return (
+    <div className="control-buttons">
+      {playButton}
+      <Button
+        variant="contained"
+        className="button"
+        color="secondary"
+        onClick={onResetClick}
+      >
+        Reset
+      </Button>
+    </div>
+  );
+}
+
+export function createStopWatch(
+  timerMenu: ITimerMenu,
+  onTick: (sw: StopWatch) => void,
+  onFinish: (sw: StopWatch) => void,
+  self: IDataStore
+): StopWatch {
+  return new StopWatch(
+    getTitle(timerMenu, self),
+    getDuration(timerMenu, self),
+    getCheckPoints(timerMenu, self),
+    onTick,
+    onFinish
+  );
 }

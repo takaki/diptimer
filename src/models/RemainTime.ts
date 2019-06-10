@@ -26,15 +26,15 @@ export class RemainTime {
     const seconds = Math.ceil(this.milliSeconds / 1000);
     if (seconds < 10) {
       return seconds.toString();
-    } else {
-      const hour = Math.floor(seconds / 3600);
-      const min = Math.floor((seconds % 3600) / 60);
-      const sec = Math.floor(seconds % 60);
-      return `残り${hour > 0 ? hour + "時間" : ""}
-        ${min > 0 ? min + "分" : ""}
-        ${sec > 0 ? sec + "秒" : ""}
-        です`;
     }
+
+    const hour = Math.floor(seconds / 3600);
+    const min = Math.floor((seconds % 3600) / 60);
+    const sec = Math.floor(seconds % 60);
+    return `残り${hour > 0 ? `{hour}時間` : ""}
+        ${min > 0 ? `{min}分` : ""}
+        ${sec > 0 ? `{sec}秒` : ""}
+        です`;
   }
 
   public calc(diff: number) {

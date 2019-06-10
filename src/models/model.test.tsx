@@ -1,4 +1,4 @@
-import { DataStore } from "./DataStore";
+import { defaultDataStore, IDataStore } from "./DataStore";
 import { defaultMenuEntry } from "./MenuEntry";
 import { defaultTimerEntry } from "./TimerEntry";
 
@@ -13,7 +13,7 @@ it("MenuEntry without crashing", () => {
 });
 
 it("without crashing", () => {
-  const dataStore = new DataStore();
+  const dataStore = defaultDataStore;
   const i = dataStore.menuIndex;
   expect(i).toBe(0);
 });
