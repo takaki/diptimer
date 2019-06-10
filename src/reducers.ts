@@ -5,9 +5,17 @@ import {
   SET_FINISH,
   SET_MENU_INDEX,
   SET_NEXT_TIMER,
-  SET_REMAIN_TIME
+  SET_REMAIN_TIME,
+  SET_STOP_WATCH
 } from "./constants";
-import { defaultDataStore, IDataStore, nextTimer } from "./models/DataStore";
+import {
+  createStopWatch,
+  defaultDataStore,
+  IDataStore,
+  isTimerLeft,
+  nextTimer
+} from "./models/DataStore";
+import { StopWatch } from "./models/StopWatch";
 
 export const modelReducer = (
   state: IDataStore = defaultDataStore,
@@ -33,6 +41,17 @@ export const modelReducer = (
       return { ...state, finish: true };
     case SET_NEXT_TIMER:
       return nextTimer(state);
+    case SET_STOP_WATCH:
+      const sw = createStopWatch(
+        action.payload.onTick,
+        action.payload.onFinish,
+        state
+      );
+      return {
+        ...state,
+        sw,
+        time: sw.remainTimeString()
+      };
     default:
       return state;
     // throw new Error();

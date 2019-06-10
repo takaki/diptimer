@@ -16,21 +16,14 @@ import { empty } from "fp-ts/lib/Array";
 import nosleepJs from "nosleep.js";
 import printf from "printf";
 import * as React from "react";
-import {
-  createStopWatch,
-  IDataStore,
-  isTimerLeft,
-  nextTimer,
-  timerList
-} from "../models/DataStore";
+import { IDataStore, isTimerLeft, timerList } from "../models/DataStore";
 import { IMenuEntry } from "../models/MenuEntry";
 import { StopWatch } from "../models/StopWatch";
-import { defaultTimerEntry, ITimerEntry } from "../models/TimerEntry";
+import { ITimerEntry } from "../models/TimerEntry";
 import { IGameTimerProps } from "../types";
 
 export class GameTimer extends React.Component<IGameTimerProps> {
   public noSleep = new nosleepJs();
-  private sw: StopWatch = new StopWatch(defaultTimerEntry);
 
   public componentDidMount() {
     this.onChange(this.props.dataStore.menuIndex);
@@ -69,14 +62,9 @@ export class GameTimer extends React.Component<IGameTimerProps> {
     };
     const onFinish = (sw: StopWatch) => {
       if (isTimerLeft(this.props.dataStore)) {
-        // FIXME
-        this.sw = createStopWatch(
-          onTick,
-          onFinish,
-          nextTimer(this.props.dataStore)
-        );
-        this.sw.go();
         this.props.setNextTimer();
+        this.props.setStopWatch(onTick, onFinish);
+        this.props.dataStore.sw.go();
       } else {
         const synthes = new SpeechSynthesisUtterance("終了です。");
         synthes.lang = "ja-JP";
@@ -84,25 +72,19 @@ export class GameTimer extends React.Component<IGameTimerProps> {
         this.props.setFinish();
       }
     };
-    this.sw.pause();
+    this.props.dataStore.sw.pause();
     this.noSleep.disable();
-    // FIXME propsがアップデートされるのはcomponentDidMount()の終了後
-    this.sw = createStopWatch(onTick, onFinish, {
-      ...this.props.dataStore,
-      menuIndex,
-      timerIndex: 0
-    });
     this.props.setMenuIndex(menuIndex);
-    this.props.setRemainTime(this.sw.remainTimeString());
+    this.props.setStopWatch(onTick, onFinish);
   }
 
   private onPlayClick = () => {
     this.noSleep.enable();
-    if (this.sw.canRun()) {
-      this.sw.go();
+    if (this.props.dataStore.sw.canRun()) {
+      this.props.dataStore.sw.go();
       this.props.execPause();
     } else {
-      this.sw.pause();
+      this.props.dataStore.sw.pause();
       this.props.execGo();
     }
   };
