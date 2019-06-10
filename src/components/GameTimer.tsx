@@ -1,14 +1,14 @@
 import { Divider, List } from "@material-ui/core";
 // @ts-ignore
-import NoSleep from "nosleep.js";
-import React, { Component } from "react";
+import nosleepJs from "nosleep.js";
+import * as React from "react";
 import { StopWatch } from "../models/StopWatch";
 import { TimerMenu } from "../models/TimerMenu";
 import { IGameTimerProps } from "../types";
 
-export class GameTimer extends Component<IGameTimerProps> {
+export class GameTimer extends React.Component<IGameTimerProps> {
 
-    public noSleep: NoSleep = new NoSleep();
+    public noSleep = new nosleepJs();
     public timerMenu: TimerMenu = new TimerMenu();
     private sw: StopWatch = new StopWatch("dummy", 0, []);
 
@@ -80,7 +80,7 @@ export class GameTimer extends Component<IGameTimerProps> {
         this.onChange(this.props.dataStore.menuIndex);
     }
 
-    private onMenuSelect = (ev: React.ChangeEvent<HTMLSelectElement>) => {
+    private onMenuSelect = (ev: React.ChangeEvent<any>) => {
         this.onChange(parseInt(ev.target.value, 10));
     }
 }

@@ -1,9 +1,9 @@
 import { MenuItem, Select } from "@material-ui/core";
 import { List, Range, Record } from "immutable";
-import React from "react";
+import * as React from "react";
 import { MenuEntry } from "./MenuEntry";
-import { TimerEntry } from "./TimerEntry";
 import { RemainTime } from "./RemainTime";
+import { TimerEntry } from "./TimerEntry";
 
 interface ITimerMenu {
     menuEntries: List<MenuEntry>;
@@ -43,7 +43,7 @@ const defaultTimerMenu: ITimerMenu = {
 
 export class TimerMenu extends Record(defaultTimerMenu) implements ITimerMenu {
 
-    public selectMenu(menuIndex: number, onMenuSelect: (ev: React.ChangeEvent<HTMLSelectElement>) => void) {
+    public selectMenu(menuIndex: number, onMenuSelect: (ev:React.ChangeEvent<any>) => void) {
         const selectItems = this.menuEntries.map((e: MenuEntry) => e.name).map((n, i) => (
             <MenuItem value={i} key={n}>{n}</MenuItem>));
         return (

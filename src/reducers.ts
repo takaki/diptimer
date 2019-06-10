@@ -9,7 +9,7 @@ import {
 } from "./constants";
 import { DataStore } from "./models/DataStore";
 
-export function modelReducer(state: DataStore, action: ModelAction): DataStore {
+export function modelReducer(state: DataStore = new DataStore(), action: ModelAction): DataStore {
     switch (action.type) {
         case SET_REMAIN_TIME:
             return state.set("time", action.payload.remainTime);
