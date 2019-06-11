@@ -23,79 +23,80 @@ import { StopWatch } from "../models/StopWatch";
 import { ITimerEntry } from "../models/TimerEntry";
 import { IGameTimerProps } from "../types";
 
-export class GameTimer extends React.Component<IGameTimerProps> {
-  private noSleep = new nosleepJs();
+const noSleep = new nosleepJs();
 
+export class GameTimer extends React.Component<IGameTimerProps> {
   public componentDidMount() {
-    this.onChange(this.props.dataStore.menuIndex);
+    onChange(this.props)(this.props.dataStore.menuIndex);
   }
 
   public render() {
     // React.useLayoutEffect()
     return (
       <div>
-        {selectMenu(this.onMenuSelect, this.props.dataStore)}
+        {selectMenu(onMenuSelect(this.props), this.props.dataStore)}
         <List>
           {timerListItem(this.props.dataStore)}
           <Divider />
           {timeDisplay(this.props.dataStore)}
           {controlButtons(
-            this.onPlayClick,
-            this.onResetClick,
+            onPlayClick(this.props),
+            onResetClick(this.props),
             this.props.dataStore
           )}
         </List>
       </div>
     );
   }
+}
 
-  private onChange(menuIndex: number) {
-    const onTick = (sw: StopWatch) => {
-      if (remainTime.seconds(sw.remainTime()) < sw.firstCheckPoint()) {
-        const synthes = new SpeechSynthesisUtterance(
-          remainTime.toLeftString(sw.remainTime())
-        );
-        synthes.lang = "ja-JP";
-        synthes.rate = 1.2;
-        speechSynthesis.speak(synthes);
-        sw.shiftCheckPoints();
-      }
-      this.props.setRemainTime(remainTime.format(sw.remainTime()));
-    };
-    const onFinish = (sw: StopWatch) => {
-      if (isTimerLeft(this.props.dataStore)) {
-        this.props.setNextTimer();
-        this.props.newStopWatch(onTick, onFinish);
-        this.props.dataStore.sw.go();
-      } else {
-        const synthes = new SpeechSynthesisUtterance("終了です。");
-        synthes.lang = "ja-JP";
-        speechSynthesis.speak(synthes);
-        this.props.setFinish();
-      }
-    };
-    this.props.dataStore.sw.pause();
-    this.noSleep.disable();
-    this.props.setMenuIndex(menuIndex);
-    this.props.newStopWatch(onTick, onFinish);
-  }
-
-  private onPlayClick = () => {
-    this.noSleep.enable();
-    if (this.props.dataStore.sw.canRun()) {
-      this.props.dataStore.sw.go();
-      this.props.execPause();
+const onChange = (props: IGameTimerProps) => (menuIndex: number): void => {
+  const onTick = (sw: StopWatch) => {
+    if (remainTime.seconds(sw.remainTime()) < sw.firstCheckPoint()) {
+      const synthes = new SpeechSynthesisUtterance(
+        remainTime.toLeftString(sw.remainTime())
+      );
+      synthes.lang = "ja-JP";
+      synthes.rate = 1.2;
+      speechSynthesis.speak(synthes);
+      sw.shiftCheckPoints();
+    }
+    props.setRemainTime(remainTime.format(sw.remainTime()));
+  };
+  const onFinish = (sw: StopWatch) => {
+    if (isTimerLeft(props.dataStore)) {
+      props.setNextTimer();
+      props.newStopWatch(onTick, onFinish);
+      props.dataStore.sw.go();
     } else {
-      this.props.dataStore.sw.pause();
-      this.props.execGo();
+      const synthes = new SpeechSynthesisUtterance("終了です。");
+      synthes.lang = "ja-JP";
+      speechSynthesis.speak(synthes);
+      props.setFinish();
     }
   };
+  props.dataStore.sw.pause();
+  noSleep.disable();
+  props.setMenuIndex(menuIndex);
+  props.newStopWatch(onTick, onFinish);
+};
 
-  private onResetClick = () => this.onChange(this.props.dataStore.menuIndex);
+const onPlayClick = (props: IGameTimerProps) => (): void => {
+  noSleep.enable();
+  if (props.dataStore.sw.canRun()) {
+    props.dataStore.sw.go();
+    props.execPause();
+  } else {
+    props.dataStore.sw.pause();
+    props.execGo();
+  }
+};
 
-  private onMenuSelect = (ev: React.ChangeEvent<any>) =>
-    this.onChange(parseInt(ev.target.value, 10));
-}
+const onResetClick = (props: IGameTimerProps) => (): void =>
+  onChange(props)(props.dataStore.menuIndex);
+
+const onMenuSelect = (props: IGameTimerProps) => (ev: React.ChangeEvent<any>) =>
+  onChange(props)(parseInt(ev.target.value, 10));
 
 const timerListItem = (dataStore: IDataStore): JSX.Element[] =>
   timerList(dataStore)
@@ -127,15 +128,15 @@ const timerListItem = (dataStore: IDataStore): JSX.Element[] =>
     .getOrElse(empty);
 
 const controlButtons = (
-  onPlayClick: () => void,
-  onResetClick: () => void,
+  onPlayClick0: () => void,
+  onResetClick0: () => void,
   self: IDataStore
 ): JSX.Element => (
   <div className="control-buttons">
     {self.finish ? (
       ""
     ) : (
-      <Button variant="contained" className="button" onClick={onPlayClick}>
+      <Button variant="contained" className="button" onClick={onPlayClick0}>
         {self.running ? <Pause /> : <PlayArrow />}
         {self.label}
       </Button>
@@ -144,7 +145,7 @@ const controlButtons = (
       variant="contained"
       className="button"
       color="secondary"
-      onClick={onResetClick}
+      onClick={onResetClick0}
     >
       Reset
     </Button>
@@ -158,10 +159,10 @@ const timeDisplay = (self: IDataStore): JSX.Element => (
 );
 
 const selectMenu = (
-  onMenuSelect: (ev: React.ChangeEvent<any>) => void,
+  onMenuSelect0: (ev: React.ChangeEvent<any>) => void,
   self: IDataStore
 ): JSX.Element => (
-  <Select value={self.menuIndex} onChange={onMenuSelect}>
+  <Select value={self.menuIndex} onChange={onMenuSelect0}>
     {self.timerMenu.menuEntries
       .map((e: IMenuEntry) => e.name)
       .map((n, i) => (
