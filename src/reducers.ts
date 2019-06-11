@@ -2,13 +2,18 @@ import { ModelAction } from "./actions";
 import {
   EXEC_GO,
   EXEC_PAUSE,
+  NEW_STOP_WATCH,
   SET_FINISH,
   SET_MENU_INDEX,
   SET_NEXT_TIMER,
-  SET_REMAIN_TIME,
-  SET_STOP_WATCH
+  SET_REMAIN_TIME
 } from "./constants";
-import { createStopWatch, defaultDataStore, IDataStore, nextTimer } from "./models/DataStore";
+import {
+  createStopWatch,
+  defaultDataStore,
+  IDataStore,
+  nextTimer
+} from "./models/DataStore";
 import { remainTime } from "./models/RemainTime";
 
 export const modelReducer = (
@@ -35,7 +40,7 @@ export const modelReducer = (
       return { ...state, finish: true };
     case SET_NEXT_TIMER:
       return nextTimer(state);
-    case SET_STOP_WATCH:
+    case NEW_STOP_WATCH:
       const sw = createStopWatch(
         action.payload.onTick,
         action.payload.onFinish,

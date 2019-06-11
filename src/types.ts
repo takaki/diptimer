@@ -9,5 +9,5 @@ export interface IGameTimerProps {
   setMenuIndex: (i: number) => void;
   setFinish: () => void;
   setNextTimer: () => void;
-  setStopWatch: (f: (i: StopWatch) => void, g: (i: StopWatch) => void) => void;
+  newStopWatch: (f: (i: StopWatch) => void, g: (i: StopWatch) => void) => void;
 }

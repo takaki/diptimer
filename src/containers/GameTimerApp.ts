@@ -4,11 +4,11 @@ import {
   execGo,
   execPause,
   ModelAction,
+  newStopWatch,
   setFinish,
   setMenuIndex,
   setNextTimer,
-  setRemainTime,
-  setStopWatch
+  setRemainTime
 } from "../actions";
 import { GameTimer } from "../components/GameTimer";
 import { IDataStore } from "../models/DataStore";
@@ -23,8 +23,8 @@ export const mapDispatchToProps = (dispatch: Dispatch<ModelAction>) => ({
   setMenuIndex: (i: number) => dispatch(setMenuIndex(i)),
   setFinish: () => dispatch(setFinish()),
   setNextTimer: () => dispatch(setNextTimer()),
-  setStopWatch: (f: (i: StopWatch) => void, g: (i: StopWatch) => void) =>
-    dispatch(setStopWatch(f, g))
+  newStopWatch: (f: (i: StopWatch) => void, g: (i: StopWatch) => void) =>
+    dispatch(newStopWatch(f, g))
 });
 
 export const GameTimerApp = connect(

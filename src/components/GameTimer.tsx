@@ -24,13 +24,14 @@ import { ITimerEntry } from "../models/TimerEntry";
 import { IGameTimerProps } from "../types";
 
 export class GameTimer extends React.Component<IGameTimerProps> {
-  public noSleep = new nosleepJs();
+  private noSleep = new nosleepJs();
 
   public componentDidMount() {
     this.onChange(this.props.dataStore.menuIndex);
   }
 
   public render() {
+    // React.useLayoutEffect()
     return (
       <div>
         {selectMenu(this.onMenuSelect, this.props.dataStore)}
@@ -64,7 +65,7 @@ export class GameTimer extends React.Component<IGameTimerProps> {
     const onFinish = (sw: StopWatch) => {
       if (isTimerLeft(this.props.dataStore)) {
         this.props.setNextTimer();
-        this.props.setStopWatch(onTick, onFinish);
+        this.props.newStopWatch(onTick, onFinish);
         this.props.dataStore.sw.go();
       } else {
         const synthes = new SpeechSynthesisUtterance("終了です。");
@@ -76,7 +77,7 @@ export class GameTimer extends React.Component<IGameTimerProps> {
     this.props.dataStore.sw.pause();
     this.noSleep.disable();
     this.props.setMenuIndex(menuIndex);
-    this.props.setStopWatch(onTick, onFinish);
+    this.props.newStopWatch(onTick, onFinish);
   }
 
   private onPlayClick = () => {
