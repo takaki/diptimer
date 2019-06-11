@@ -18,6 +18,7 @@ import printf from "printf";
 import * as React from "react";
 import { IDataStore, isTimerLeft, timerList } from "../models/DataStore";
 import { IMenuEntry } from "../models/MenuEntry";
+import { remainTime } from "../models/RemainTime";
 import { StopWatch } from "../models/StopWatch";
 import { ITimerEntry } from "../models/TimerEntry";
 import { IGameTimerProps } from "../types";
@@ -49,16 +50,16 @@ export class GameTimer extends React.Component<IGameTimerProps> {
 
   private onChange(menuIndex: number) {
     const onTick = (sw: StopWatch) => {
-      if (sw.remainTime().seconds < sw.checkPoints[0]) {
+      if (remainTime.seconds(sw.remainTime()) < sw.checkPoints[0]) {
         const synthes = new SpeechSynthesisUtterance(
-          sw.remainTime().toLeftString()
+          remainTime.toLeftString(sw.remainTime())
         );
         synthes.lang = "ja-JP";
         synthes.rate = 1.2;
         speechSynthesis.speak(synthes);
         sw.checkPoints.shift();
       }
-      this.props.setRemainTime(sw.remainTimeString());
+      this.props.setRemainTime(remainTime.format(sw.remainTime()));
     };
     const onFinish = (sw: StopWatch) => {
       if (isTimerLeft(this.props.dataStore)) {

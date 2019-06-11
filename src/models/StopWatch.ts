@@ -1,6 +1,6 @@
 import { array, range, reverse } from "fp-ts/lib/Array";
 import { concat } from "fp-ts/lib/function";
-import { RemainTime } from "./RemainTime";
+import { IRemainTime, remainTime } from "./RemainTime";
 import { ITimerEntry } from "./TimerEntry";
 
 enum WatchState {
@@ -11,22 +11,22 @@ enum WatchState {
 }
 
 export class StopWatch {
-  public remainTime1: RemainTime;
   public checkPoints: number[];
-  public timeoutIds: number[] = [];
-  public state: WatchState = WatchState.BEFORE_START;
-  public startedAt?: Date = undefined;
+  private remainTime1: IRemainTime;
+  private timeoutIds: number[] = [];
+  private state: WatchState = WatchState.BEFORE_START;
+  private startedAt?: Date = undefined;
 
   constructor(
-    public timerEntry: ITimerEntry,
-    public onTick: (sw: StopWatch) => void = () => {
+    private timerEntry: ITimerEntry,
+    private onTick: (sw: StopWatch) => void = () => {
       return;
     },
-    public onFinish: (sw: StopWatch) => void = () => {
+    private onFinish: (sw: StopWatch) => void = () => {
       return;
     }
   ) {
-    this.remainTime1 = new RemainTime(timerEntry.duration * 1000);
+    this.remainTime1 = { milliSeconds: timerEntry.duration * 1000 };
     this.checkPoints = getCheckPoints(timerEntry.duration);
   }
 
@@ -62,21 +62,17 @@ export class StopWatch {
     this.state = WatchState.SUSPEND;
   }
 
-  public remainTime(): RemainTime {
-    return this.remainTime1.calc(
-      this.startedAt ? Date.now() - this.startedAt.getTime() : 0
+  public remainTime(): IRemainTime {
+    return remainTime.calc(
+      this.startedAt ? Date.now() - this.startedAt.getTime() : 0,
+      this.remainTime1
     );
   }
-
-  public remainTimeString(): string {
-    return this.remainTime().format();
-  }
-
   public tick_() {
     this.timeoutIds.push(
       window.setTimeout(() => {
         this.onTick(this);
-        if (this.remainTime().finished) {
+        if (remainTime.finished(this.remainTime())) {
           this.state = WatchState.FINISHED;
           this.onFinish(this);
         } else {

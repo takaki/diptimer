@@ -8,14 +8,8 @@ import {
   SET_REMAIN_TIME,
   SET_STOP_WATCH
 } from "./constants";
-import {
-  createStopWatch,
-  defaultDataStore,
-  IDataStore,
-  isTimerLeft,
-  nextTimer
-} from "./models/DataStore";
-import { StopWatch } from "./models/StopWatch";
+import { createStopWatch, defaultDataStore, IDataStore, nextTimer } from "./models/DataStore";
+import { remainTime } from "./models/RemainTime";
 
 export const modelReducer = (
   state: IDataStore = defaultDataStore,
@@ -50,7 +44,7 @@ export const modelReducer = (
       return {
         ...state,
         sw,
-        time: sw.remainTimeString()
+        time: remainTime.format(sw.remainTime())
       };
     default:
       return state;
