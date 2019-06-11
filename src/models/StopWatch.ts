@@ -11,7 +11,7 @@ enum WatchState {
 }
 
 export class StopWatch {
-  public checkPoints: number[];
+  private checkPoints: number[];
   private remainTime1: IRemainTime;
   private timeoutIds: number[] = [];
   private state: WatchState = WatchState.BEFORE_START;
@@ -87,6 +87,14 @@ export class StopWatch {
       this.state === WatchState.BEFORE_START ||
       this.state === WatchState.SUSPEND
     );
+  }
+
+  public shiftCheckPoints() {
+    this.checkPoints.shift();
+  }
+
+  public firstCheckPoint() {
+    return this.checkPoints[0];
   }
 }
 

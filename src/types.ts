@@ -1,13 +1,23 @@
+import {
+  execGo,
+  execPause,
+  newStopWatch,
+  setFinish,
+  setMenuIndex,
+  setNextTimer,
+  setRemainTime,
+  setStopWatch
+} from "./actions";
 import { IDataStore } from "./models/DataStore";
-import { StopWatch } from "./models/StopWatch";
 
 export interface IGameTimerProps {
   dataStore: IDataStore;
-  setRemainTime: (s: string) => void;
-  execPause: () => void;
-  execGo: () => void;
-  setMenuIndex: (i: number) => void;
-  setFinish: () => void;
-  setNextTimer: () => void;
-  newStopWatch: (f: (i: StopWatch) => void, g: (i: StopWatch) => void) => void;
+  setRemainTime: typeof setRemainTime;
+  execPause: typeof execPause;
+  execGo: typeof execGo;
+  setMenuIndex: typeof setMenuIndex;
+  setFinish: typeof setFinish;
+  setNextTimer: typeof setNextTimer;
+  newStopWatch: typeof newStopWatch;
+  setStopWatch: typeof setStopWatch;
 }

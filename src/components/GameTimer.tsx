@@ -51,14 +51,14 @@ export class GameTimer extends React.Component<IGameTimerProps> {
 
   private onChange(menuIndex: number) {
     const onTick = (sw: StopWatch) => {
-      if (remainTime.seconds(sw.remainTime()) < sw.checkPoints[0]) {
+      if (remainTime.seconds(sw.remainTime()) < sw.firstCheckPoint()) {
         const synthes = new SpeechSynthesisUtterance(
           remainTime.toLeftString(sw.remainTime())
         );
         synthes.lang = "ja-JP";
         synthes.rate = 1.2;
         speechSynthesis.speak(synthes);
-        sw.checkPoints.shift();
+        sw.shiftCheckPoints();
       }
       this.props.setRemainTime(remainTime.format(sw.remainTime()));
     };

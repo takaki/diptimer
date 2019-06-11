@@ -6,7 +6,8 @@ import {
   SET_FINISH,
   SET_MENU_INDEX,
   SET_NEXT_TIMER,
-  SET_REMAIN_TIME
+  SET_REMAIN_TIME,
+  SET_STOP_WATCH
 } from "./constants";
 import {
   createStopWatch,
@@ -51,8 +52,14 @@ export const modelReducer = (
         sw,
         time: remainTime.format(sw.remainTime())
       };
+    case SET_STOP_WATCH:
+      return {
+        ...state,
+        sw: action.payload.stopWatch
+      };
     default:
+      // eslint-disable-next-line
+      const _: never = action;
       return state;
-    // throw new Error();
   }
 };

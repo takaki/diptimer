@@ -18,3 +18,6 @@ export type SET_NEXT_TIMER = typeof SET_NEXT_TIMER;
 
 export const NEW_STOP_WATCH = "NEW_STOP_WATCH";
 export type NEW_STOP_WATCH = typeof NEW_STOP_WATCH;
+
+export const SET_STOP_WATCH = "SET_STOP_WATCH";
+export type SET_STOP_WATCH = typeof SET_STOP_WATCH;
