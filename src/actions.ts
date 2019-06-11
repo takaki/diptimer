@@ -4,8 +4,10 @@ import {
   SET_FINISH,
   SET_MENU_INDEX,
   SET_NEXT_TIMER,
-  SET_REMAIN_TIME
+  SET_REMAIN_TIME,
+  SET_STOP_WATCH
 } from "./constants";
+import { StopWatch } from "./models/StopWatch";
 
 interface ISetRemainTime {
   type: SET_REMAIN_TIME;
@@ -37,13 +39,22 @@ interface ISetNextTimer {
   type: SET_NEXT_TIMER;
 }
 
+interface ISetStopWatch {
+  type: SET_STOP_WATCH;
+  payload: {
+    onTick: (sw: StopWatch) => void;
+    onFinish: (sw: StopWatch) => void;
+  };
+}
+
 export type ModelAction =
   | ISetRemainTime
   | IExecPause
   | IExecGo
   | ISetMenuIndex
   | ISetFinish
-  | ISetNextTimer;
+  | ISetNextTimer
+  | ISetStopWatch;
 
 export const setRemainTime = (remainTime: string): ISetRemainTime => ({
   type: SET_REMAIN_TIME,
@@ -73,4 +84,15 @@ export const setFinish = (): ISetFinish => ({
 
 export const setNextTimer = (): ISetNextTimer => ({
   type: SET_NEXT_TIMER
+});
+
+export const setStopWatch = (
+  onTick: (sw: StopWatch) => void,
+  onFinish: (sw: StopWatch) => void
+): ISetStopWatch => ({
+  type: SET_STOP_WATCH,
+  payload: {
+    onTick,
+    onFinish
+  }
 });

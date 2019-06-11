@@ -99,8 +99,8 @@ const getCheckPoints = (limit: number): number[] => {
     array.filter(
       array.reduce(
         [
-          range(1, 6),
-          range(1, 6).map(i => i * 10),
+          range(1, 5),
+          range(1, 5).map(i => i * 10),
           range(1, 15).map(i => i * 60)
         ],
         [] as number[],

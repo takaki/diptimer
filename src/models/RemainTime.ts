@@ -32,8 +32,8 @@ export class RemainTime {
     const min = Math.floor((seconds % 3600) / 60);
     const sec = Math.floor(seconds % 60);
     return `残り${hour > 0 ? `{hour}時間` : ""}
-        ${min > 0 ? `{min}分` : ""}
-        ${sec > 0 ? `{sec}秒` : ""}
+        ${min > 0 ? `${min}分` : ""}
+        ${sec > 0 ? `${sec}秒` : ""}
         です`;
   }
 

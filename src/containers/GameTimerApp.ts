@@ -7,10 +7,12 @@ import {
   setFinish,
   setMenuIndex,
   setNextTimer,
-  setRemainTime
+  setRemainTime,
+  setStopWatch
 } from "../actions";
 import { GameTimer } from "../components/GameTimer";
 import { IDataStore } from "../models/DataStore";
+import { StopWatch } from "../models/StopWatch";
 
 export const mapStateToProps = (dataStore: IDataStore) => ({ dataStore });
 
@@ -20,7 +22,9 @@ export const mapDispatchToProps = (dispatch: Dispatch<ModelAction>) => ({
   execGo: () => dispatch(execGo()),
   setMenuIndex: (i: number) => dispatch(setMenuIndex(i)),
   setFinish: () => dispatch(setFinish()),
-  setNextTimer: () => dispatch(setNextTimer())
+  setNextTimer: () => dispatch(setNextTimer()),
+  setStopWatch: (f: (i: StopWatch) => void, g: (i: StopWatch) => void) =>
+    dispatch(setStopWatch(f, g))
 });
 
 export const GameTimerApp = connect(

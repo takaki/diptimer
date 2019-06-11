@@ -1,4 +1,5 @@
 import { IDataStore } from "./models/DataStore";
+import { StopWatch } from "./models/StopWatch";
 
 export interface IGameTimerProps {
   dataStore: IDataStore;
@@ -8,4 +9,5 @@ export interface IGameTimerProps {
   setMenuIndex: (i: number) => void;
   setFinish: () => void;
   setNextTimer: () => void;
+  setStopWatch: (f: (i: StopWatch) => void, g: (i: StopWatch) => void) => void;
 }

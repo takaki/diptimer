@@ -4,6 +4,7 @@ import { Lens } from "monocle-ts";
 import { IMenuEntry } from "./MenuEntry";
 import { StopWatch } from "./StopWatch";
 import * as TM from "./TimerMenu";
+import { defaultTimerEntry } from "./TimerEntry";
 
 export interface IDataStore {
   menuIndex: number;
@@ -13,6 +14,7 @@ export interface IDataStore {
   label: string;
   running: boolean;
   finish: boolean;
+  sw: StopWatch;
 }
 
 const timerIndex = Lens.fromProp<IDataStore>()("timerIndex");
@@ -24,7 +26,8 @@ export const defaultDataStore: IDataStore = {
   time: "",
   label: "Go",
   running: false,
-  finish: false
+  finish: false,
+  sw: new StopWatch(defaultTimerEntry)
 };
 
 export const isTimerLeft = (self: IDataStore): boolean =>
