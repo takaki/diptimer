@@ -1,13 +1,15 @@
 {
-  "main.css": "/diptimer/static/css/main.f2f80ebc.chunk.css",
-  "main.js": "/diptimer/static/js/main.d945de28.chunk.js",
-  "main.js.map": "/diptimer/static/js/main.d945de28.chunk.js.map",
-  "runtime~main.js": "/diptimer/static/js/runtime~main.dc1dedbc.js",
-  "runtime~main.js.map": "/diptimer/static/js/runtime~main.dc1dedbc.js.map",
-  "static/js/2.a77d55f1.chunk.js": "/diptimer/static/js/2.a77d55f1.chunk.js",
-  "static/js/2.a77d55f1.chunk.js.map": "/diptimer/static/js/2.a77d55f1.chunk.js.map",
-  "index.html": "/diptimer/index.html",
-  "precache-manifest.13b752d8b3ea0874e89fcf2e99d47793.js": "/diptimer/precache-manifest.13b752d8b3ea0874e89fcf2e99d47793.js",
-  "service-worker.js": "/diptimer/service-worker.js",
-  "static/css/main.f2f80ebc.chunk.css.map": "/diptimer/static/css/main.f2f80ebc.chunk.css.map"
+  "files": {
+    "main.css": "/diptimer/static/css/main.7105edaa.chunk.css",
+    "main.js": "/diptimer/static/js/main.da29c365.chunk.js",
+    "main.js.map": "/diptimer/static/js/main.da29c365.chunk.js.map",
+    "runtime~main.js": "/diptimer/static/js/runtime~main.0c6a9737.js",
+    "runtime~main.js.map": "/diptimer/static/js/runtime~main.0c6a9737.js.map",
+    "static/js/2.001aaa96.chunk.js": "/diptimer/static/js/2.001aaa96.chunk.js",
+    "static/js/2.001aaa96.chunk.js.map": "/diptimer/static/js/2.001aaa96.chunk.js.map",
+    "index.html": "/diptimer/index.html",
+    "precache-manifest.0a4dc3d101a1e8f1e2aa2db031cee02d.js": "/diptimer/precache-manifest.0a4dc3d101a1e8f1e2aa2db031cee02d.js",
+    "service-worker.js": "/diptimer/service-worker.js",
+    "static/css/main.7105edaa.chunk.css.map": "/diptimer/static/css/main.7105edaa.chunk.css.map"
+  }
 }
