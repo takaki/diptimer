@@ -25,30 +25,27 @@ import { IGameTimerProps } from "../types";
 
 const noSleep = new nosleepJs();
 
-export class GameTimer extends React.Component<IGameTimerProps> {
-  public componentDidMount() {
-    onChange(this.props)(this.props.dataStore.menuIndex);
-  }
-
-  public render() {
-    // React.useLayoutEffect()
-    return (
-      <div>
-        {selectMenu(onMenuSelect(this.props), this.props.dataStore)}
-        <List>
-          {timerListItem(this.props.dataStore)}
-          <Divider />
-          {timeDisplay(this.props.dataStore)}
-          {controlButtons(
-            onPlayClick(this.props),
-            onResetClick(this.props),
-            this.props.dataStore
-          )}
-        </List>
-      </div>
-    );
-  }
-}
+export const GameTimer: React.FC<IGameTimerProps> = (
+  props: IGameTimerProps
+) => {
+  // eslint-disable-next-line
+  React.useEffect(() => onChange(props)(props.dataStore.menuIndex), []);
+  return (
+    <div>
+      {selectMenu(onMenuSelect(props), props.dataStore)}
+      <List>
+        {timerListItem(props.dataStore)}
+        <Divider />
+        {timeDisplay(props.dataStore)}
+        {controlButtons(
+          onPlayClick(props),
+          onResetClick(props),
+          props.dataStore
+        )}
+      </List>
+    </div>
+  );
+};
 
 const onChange = (props: IGameTimerProps) => (menuIndex: number): void => {
   const onTick = (sw: StopWatch) => {
