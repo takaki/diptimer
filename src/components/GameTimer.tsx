@@ -23,6 +23,10 @@ import { StopWatch } from "../models/StopWatch";
 import { ITimerEntry } from "../models/TimerEntry";
 import { IGameTimerProps } from "../types";
 
+// TODO split components
+// TODO React HOOK
+// TODO useEffetc(()=>{.....}, [])
+
 export class GameTimer extends React.Component<IGameTimerProps> {
   private noSleep = new nosleepJs();
 
@@ -31,7 +35,6 @@ export class GameTimer extends React.Component<IGameTimerProps> {
   }
 
   public render() {
-    // React.useLayoutEffect()
     return (
       <div>
         {selectMenu(this.onMenuSelect, this.props.dataStore)}
